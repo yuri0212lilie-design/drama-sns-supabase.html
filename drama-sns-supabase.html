@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DramaThread</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --border: #2a2a35;
+  --border2: #333345;
+  --text: #f0f0f5;
+  --text2: #888899;
+  --text3: #555566;
+  --neon: #00f5c4;
+  --neon2: #7b5cfa;
+  --neon3: #fa5c8a;
+  --neon4: #f5c842;
+  --card: #13131a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── PAGES ── */
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ── APP SHELL ── */
+.app {
+  max-width: 620px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+/* ── TOP NAV ── */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'DotGothic16', monospace;
+  font-size: 20px;
+  color: var(--neon);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 20px rgba(0,245,196,0.5);
+  cursor: pointer;
+}
+.nav-logo span { color: var(--neon2); }
+.nav-right { display: flex; gap: 8px; align-items: center; }
+.nav-icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 17px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.nav-icon-btn:hover { background: var(--border2); color: var(--text); }
+
+/* ── BOTTOM NAV ── */
+.bottomnav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 50;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 16px;
+  max-width: 100%;
+}
+.bnav-btn {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+  background: none; border: none;
+  color: var(--text3);
+  font-size: 22px;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px 16px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+}
+.bnav-btn span { font-size: 10px; letter-spacing: 0.05em; }
+.bnav-btn.active { color: var(--neon); }
+.bnav-btn:hover { color: var(--text); }
+
+/* ── FEED TABS ── */
+.feed-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 52px;
+  z-index: 40;
+}
+.feed-tab {
+  flex: 1;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+  letter-spacing: 0.03em;
+}
+.feed-tab.active { color: var(--text); }
+.feed-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--neon);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--neon);
+}
+
+/* ── POST COMPOSER (Threads style) ── */
+.composer {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+}
+.composer-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon2), var(--neon3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+}
+.composer-avatar::after {
+  content: '';
+  position: absolute;
+  bottom: -22px; left: 50%;
+  transform: translateX(-50%);
+  width: 2px; height: 18px;
+  background: var(--border2);
+}
+.composer-right { flex: 1; }
+.composer-name {
+  font-size: 14px; font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.composer-inputs { display: flex; flex-direction: column; gap: 8px; }
+.c-input {
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  width: 100%;
+  resize: none;
+}
+.c-input::placeholder { color: var(--text3); }
+.c-drama-input {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text2);
+  width: 100%;
+  outline: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  transition: border-color 0.2s;
+}
+.c-drama-input:focus { border-color: var(--neon); color: var(--text); }
+.c-drama-input::placeholder { color: var(--text3); }
+
+/* STAR ROW */
+.c-stars { display: flex; gap: 4px; align-items: center; }
+.c-star {
+  background: none; border: none;
+  font-size: 20px; cursor: pointer;
+  color: var(--border2);
+  transition: color 0.1s, transform 0.1s;
+  padding: 0;
+}
+.c-star.on { color: var(--neon4); }
+.c-star:hover { transform: scale(1.2); }
+
+/* SPOILER CHIP */
+.c-spoiler-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+.c-spoiler-chip.on {
+  border-color: var(--neon3);
+  color: var(--neon3);
+  background: rgba(250,92,138,0.08);
+}
+.c-spoiler-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border2);
+  transition: background 0.2s;
+}
+.c-spoiler-chip.on .c-spoiler-dot { background: var(--neon3); box-shadow: 0 0 6px var(--neon3); }
+
+.composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.c-tools { display: flex; gap: 8px; align-items: center; }
+.c-tool-btn {
+  background: none; border: none;
+  color: var(--text3); font-size: 18px;
+  cursor: pointer; padding: 4px;
+  transition: color 0.2s;
+}
+.c-tool-btn:hover { color: var(--neon); }
+.c-chars { font-size: 12px; color: var(--text3); }
+
+.post-btn {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+.post-btn:hover {
+  background: var(--neon);
+  box-shadow: 0 0 16px rgba(0,245,196,0.4);
+}
+.post-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── EPISODE DROPDOWN ── */
+.ep-field-wrap {
+  position: relative;
+}
+.ep-dropdown-btn {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 13px;
+  color: var(--text2);
+  transition: border-color 0.2s;
+  user-select: none;
+}
+.ep-dropdown-btn:hover { border-color: var(--neon2); }
+.ep-dropdown-btn.open { border-color: var(--neon2); border-radius: 8px 8px 0 0; border-bottom-color: transparent; }
+.ep-dropdown-btn .ep-selected-val { color: var(--neon2); font-weight: 700; }
+.ep-dropdown-btn .ep-selected-val.default { color: var(--text3); font-weight: 400; }
+.ep-dropdown-arrow {
+  font-size: 11px;
+  color: var(--text3);
+  transition: transform 0.2s;
+}
+.ep-dropdown-btn.open .ep-dropdown-arrow { transform: rotate(180deg); }
+
+.ep-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background: var(--bg3);
+  border: 1px solid var(--neon2);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  z-index: 30;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+  animation: fadeIn 0.15s ease;
+}
+.ep-dropdown-menu.open { display: block; }
+.ep-dropdown-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  color: var(--text2);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ep-dropdown-item:last-child { border-bottom: none; }
+.ep-dropdown-item:hover { background: rgba(123,92,250,0.08); color: var(--text); }
+.ep-dropdown-item.selected {
+  color: var(--neon2);
+  font-weight: 700;
+  background: rgba(123,92,250,0.1);
+}
+.ep-dropdown-item.selected::after { content: '✓'; font-size: 12px; }
+.ep-dropdown-item.all.selected { color: var(--neon); background: rgba(0,245,196,0.07); }
+.ep-dropdown-divider {
+  padding: 6px 14px 4px;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+/* EPISODE BADGE on posts */
+.ep-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(123,92,250,0.12);
+  border: 1px solid rgba(123,92,250,0.3);
+  color: var(--neon2);
+  font-size: 11px; font-weight: 700;
+  padding: 2px 9px; border-radius: 20px;
+  margin-bottom: 5px;
+  letter-spacing: 0.03em;
+}
+.ep-badge.all {
+  background: rgba(0,245,196,0.08);
+  border-color: rgba(0,245,196,0.25);
+  color: var(--neon);
+}
+
+/* DRAMA PAGE EPISODE FILTER */
+.ep-filter-bar {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.ep-filter-bar::-webkit-scrollbar { display: none; }
+.ep-filter-inner { display: inline-flex; gap: 6px; }
+.ep-filter-chip {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  flex-shrink: 0;
+}
+.ep-filter-chip:hover { border-color: var(--neon2); color: var(--neon2); }
+.ep-filter-chip.active {
+  background: rgba(123,92,250,0.15);
+  border-color: var(--neon2);
+  color: var(--neon2);
+  font-weight: 700;
+}
+.ep-filter-chip.all.active {
+  background: rgba(0,245,196,0.12);
+  border-color: var(--neon);
+  color: var(--neon);
+}
+
+/* MOD WARNING */
+.mod-warn {
+  background: rgba(250,92,138,0.1);
+  border: 1px solid rgba(250,92,138,0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--neon3);
+  margin-top: 8px;
+  display: none;
+}
+.mod-warn.show { display: block; }
+
+/* ── POST CARD (Threads style) ── */
+.post-card {
+  padding: 16px 16px 0;
+  border-bottom: 1px solid var(--border);
+  animation: fadeIn 0.3s ease;
+  transition: background 0.15s;
+}
+.post-card:hover { background: rgba(255,255,255,0.01); }
+.post-card.frozen { opacity: 0.5; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.post-inner { display: flex; gap: 12px; }
+.post-avatar-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.p-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; flex-shrink: 0;
+  position: relative;
+}
+.p-avatar.has-replies::after {
+  content: '';
+  position: absolute;
+  bottom: -100%; left: 50%; transform: translateX(-50%);
+  width: 2px; height: 100%;
+  background: var(--border2);
+}
+.thread-line {
+  flex: 1; width: 2px;
+  background: var(--border2);
+  margin: 4px 0 0;
+  min-height: 16px;
+}
+.post-body-col { flex: 1; min-width: 0; }
+.post-head {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.p-username { font-size: 14px; font-weight: 700; }
+.p-time { font-size: 12px; color: var(--text3); }
+.p-drama-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--neon);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+.p-drama-tag:hover {
+  text-shadow: 0 0 10px var(--neon);
+}
+.p-drama-tag .arrow { font-size: 11px; opacity: 0.6; }
+.p-stars { display: flex; gap: 2px; margin-bottom: 6px; }
+.p-star { font-size: 13px; color: var(--border2); }
+.p-star.on { color: var(--neon4); }
+.spoiler-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(250,92,138,0.12);
+  border: 1px solid rgba(250,92,138,0.3);
+  color: var(--neon3);
+  font-size: 11px;
+  padding: 2px 8px; border-radius: 20px;
+  margin-bottom: 6px;
+}
+.p-text {
+  font-size: 15px; line-height: 1.65;
+  color: rgba(240,240,245,0.9);
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+.spoiler-blur {
+  filter: blur(6px);
+  user-select: none;
+  cursor: pointer;
+  transition: filter 0.3s;
+  border-radius: 4px;
+}
+.spoiler-blur.revealed { filter: none; }
+.frozen-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(123,92,250,0.12);
+  border: 1px solid rgba(123,92,250,0.3);
+  color: var(--neon2);
+  font-size: 11px;
+  padding: 2px 8px; border-radius: 20px;
+  margin-bottom: 6px;
+}
+.post-actions {
+  display: flex; gap: 0;
+  margin: 2px -8px 0;
+  padding-bottom: 4px;
+}
+.p-action {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: none;
+  color: var(--text3);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 8px;
+  border-radius: 8px;
+  transition: all 0.15s;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+}
+.p-action:hover { color: var(--text); background: var(--bg3); }
+.p-action.liked { color: var(--neon3); }
+.p-action .icon { font-size: 17px; }
+.p-action.liked .icon { animation: heartPop 0.25s ease; }
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* ── DRAMA DETAIL PAGE ── */
+.drama-page-topnav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10,10,15,0.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 52px;
+  display: flex; align-items: center; gap: 14px;
+}
+.back-btn {
+  background: none; border: none;
+  color: var(--text); font-size: 22px;
+  cursor: pointer; padding: 4px;
+  transition: color 0.2s;
+  display: flex; align-items: center;
+}
+.back-btn:hover { color: var(--neon); }
+.drama-page-title { font-size: 16px; font-weight: 700; }
+
+.drama-hero {
+  padding: 24px 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.drama-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(0,245,196,0.05), transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(123,92,250,0.07), transparent 60%);
+  pointer-events: none;
+}
+.drama-title-row {
+  display: flex; align-items: flex-start; gap: 16px;
+  margin-bottom: 16px;
+}
+.drama-thumb {
+  width: 72px; height: 96px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--bg3), var(--border2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+  border: 1px solid var(--border2);
+}
+.drama-info { flex: 1; }
+.drama-main-title {
+  font-size: 20px; font-weight: 900;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.drama-genre-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.genre-chip {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.drama-rating-big {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.rating-num {
+  font-family: 'DotGothic16', monospace;
+  font-size: 42px;
+  color: var(--neon4);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(245,200,66,0.4);
+}
+.rating-right { }
+.rating-stars-big { display: flex; gap: 3px; margin-bottom: 2px; }
+.r-star { font-size: 18px; color: var(--border2); }
+.r-star.on { color: var(--neon4); }
+.rating-count { font-size: 12px; color: var(--text3); }
+
+/* INFO CARDS */
+.drama-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.info-card {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.info-card-label {
+  font-size: 11px; color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.info-card-val {
+  font-size: 14px; font-weight: 700;
+  color: var(--text);
+}
+.info-card-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* STREAMING BADGES */
+.streaming-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.stream-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.stream-badge:hover {
+  border-color: var(--neon);
+  color: var(--neon);
+  background: rgba(0,245,196,0.05);
+}
+.stream-icon { font-size: 18px; }
+
+/* DRAMA PAGE TABS */
+.drama-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 52px; z-index: 40;
+  background: var(--bg);
+}
+.drama-tab {
+  flex: 1;
+  padding: 13px 0;
+  text-align: center;
+  font-size: 13px; font-weight: 500;
+  color: var(--text3);
+  background: none; border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+  letter-spacing: 0.03em;
+}
+.drama-tab.active { color: var(--text); }
+.drama-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--neon2);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--neon2);
+}
+
+/* STAT BAR */
+.stat-bar-wrap { padding: 16px; border-bottom: 1px solid var(--border); }
+.stat-bar-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 6px;
+}
+.stat-bar-label { font-size: 12px; color: var(--text3); width: 12px; }
+.stat-bar-track {
+  flex: 1; height: 4px;
+  background: var(--border2); border-radius: 2px;
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--neon2), var(--neon));
+  transition: width 0.6s ease;
+}
+.stat-bar-cnt { font-size: 12px; color: var(--text2); width: 28px; text-align: right; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 88px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.3s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+.toast.neon { border-color: var(--neon); color: var(--neon); }
+.toast.warn { border-color: var(--neon3); color: var(--neon3); }
+
+/* ── REPORT SHEET ── */
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet-backdrop.open { display: flex; }
+.sheet {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  padding: 20px 0 40px;
+  width: 100%; max-width: 620px;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: var(--border2);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+.sheet-title {
+  font-size: 15px; font-weight: 700;
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+.sheet-option {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; padding: 14px 20px;
+  background: none; border: none;
+  color: var(--text); font-size: 15px;
+  cursor: pointer;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  transition: background 0.15s;
+  text-align: left;
+}
+.sheet-option:hover { background: var(--bg2); }
+.sheet-option.danger { color: var(--neon3); }
+.sheet-icon { font-size: 20px; }
+
+/* ── SEARCH PAGE ── */
+.search-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 52px; z-index: 40;
+  background: var(--bg);
+}
+.search-input-wrap {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 10px 16px;
+  transition: border-color 0.2s;
+}
+.search-input-wrap:focus-within { border-color: var(--neon2); }
+.search-icon { font-size: 16px; color: var(--text3); }
+.s-input {
+  background: none; border: none; outline: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 15px; color: var(--text); flex: 1;
+}
+.s-input::placeholder { color: var(--text3); }
+.trending-section { padding: 16px; }
+.trending-label {
+  font-size: 12px; color: var(--text3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.trending-drama-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.trending-drama-item:hover { opacity: 0.7; }
+.td-rank {
+  font-family: 'DotGothic16', monospace;
+  font-size: 18px; font-weight: 700;
+  width: 28px;
+  color: var(--text3);
+}
+.td-rank.top { color: var(--neon); text-shadow: 0 0 8px var(--neon); }
+.td-info { flex: 1; }
+.td-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.td-meta { font-size: 12px; color: var(--text3); }
+.td-count {
+  font-size: 13px; color: var(--text2);
+  background: var(--bg3);
+  padding: 4px 10px; border-radius: 20px;
+}
+
+/* ── REPLY AREA ── */
+.reply-area {
+  display: none;
+  padding: 0 16px 0 68px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.015);
+  animation: fadeIn 0.2s ease;
+}
+.reply-area.open { display: block; }
+
+.reply-composer {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0 4px;
+}
+.reply-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon2), var(--neon3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  flex-shrink: 0;
+}
+.reply-input-wrap { flex: 1; }
+.reply-name-input {
+  background: none; border: none; outline: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 12px; color: var(--text3);
+  width: 100%; margin-bottom: 4px;
+}
+.reply-name-input::placeholder { color: var(--text3); }
+.reply-text-input {
+  background: none; border: none; outline: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 14px; color: var(--text);
+  width: 100%; resize: none;
+  min-height: 36px;
+}
+.reply-text-input::placeholder { color: var(--text3); }
+.reply-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0 12px;
+}
+.reply-mod-warn {
+  font-size: 12px; color: var(--neon3);
+  display: none;
+}
+.reply-mod-warn.show { display: block; }
+.reply-submit-btn {
+  background: var(--text); color: var(--bg);
+  border: none; padding: 6px 16px;
+  border-radius: 20px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: 'Zen Kaku Gothic New', sans-serif;
+  transition: all 0.2s;
+}
+.reply-submit-btn:hover { background: var(--neon); box-shadow: 0 0 12px rgba(0,245,196,0.4); }
+
+/* REPLIES LIST */
+.replies-list { }
+.reply-item {
+  display: flex; gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  animation: fadeIn 0.25s ease;
+  position: relative;
+}
+.reply-item::before {
+  content: '';
+  position: absolute;
+  left: -52px; top: 0; bottom: 50%;
+  width: 2px;
+  background: var(--border2);
+  display: none;
+}
+.r-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.r-body { flex: 1; min-width: 0; }
+.r-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+.r-name { font-size: 13px; font-weight: 700; }
+.r-time { font-size: 11px; color: var(--text3); }
+.r-text { font-size: 14px; line-height: 1.6; color: rgba(240,240,245,0.85); word-break: break-word; }
+.r-actions { display: flex; gap: 0; margin-top: 4px; margin-left: -6px; }
+.r-action {
+  background: none; border: none;
+  color: var(--text3); font-size: 12px;
+  cursor: pointer; padding: 4px 6px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  display: flex; align-items: center; gap: 3px;
+}
+.r-action:hover { color: var(--text); background: var(--bg3); }
+.r-action.liked { color: var(--neon3); }
+
+/* SHOW REPLIES TOGGLE */
+.show-replies-btn {
+  background: none; border: none;
+  color: var(--neon2); font-size: 13px;
+  cursor: pointer; padding: 10px 0 12px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  display: flex; align-items: center; gap: 5px;
+  transition: color 0.2s;
+}
+.show-replies-btn:hover { color: var(--neon); }
+
+/* ── REPLY MODAL (full sheet) ── */
+.reply-modal-backdrop {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+.reply-modal-backdrop.open { display: flex; }
+.reply-modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 620px;
+  max-height: 85vh;
+  display: flex; flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+.reply-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.reply-modal-title { font-size: 15px; font-weight: 700; }
+.reply-modal-close {
+  background: var(--bg3); border: none;
+  color: var(--text2); font-size: 16px;
+  width: 32px; height: 32px;
+  border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.reply-modal-close:hover { background: var(--border2); color: var(--text); }
+.reply-modal-scroll { overflow-y: auto; flex: 1; }
+
+/* original post preview in modal */
+.reply-modal-orig {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  opacity: 0.75;
+}
+.reply-modal-orig .p-username { font-size: 13px; }
+.reply-modal-orig .p-text { font-size: 13px; color: var(--text2); margin-bottom: 0; }
+
+/* reply input in modal */
+.reply-modal-input-area {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 12px;
+}
+.reply-modal-input-right { flex: 1; }
+.reply-modal-name {
+  font-size: 12px; color: var(--neon2); margin-bottom: 2px;
+  background: none; border: none; outline: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif; width: 100%;
+}
+.reply-modal-name::placeholder { color: var(--text3); }
+.reply-modal-textarea {
+  background: none; border: none; outline: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 15px; color: var(--text);
+  width: 100%; resize: none; min-height: 72px;
+}
+.reply-modal-textarea::placeholder { color: var(--text3); }
+.reply-modal-footer {
+  padding: 12px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+}
+.reply-modal-warn { font-size: 12px; color: var(--neon3); }
+.reply-modal-submit {
+  background: var(--text); color: var(--bg);
+  border: none; padding: 8px 22px;
+  border-radius: 20px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: 'Zen Kaku Gothic New', sans-serif;
+  transition: all 0.2s;
+}
+.reply-modal-submit:hover { background: var(--neon); box-shadow: 0 0 14px rgba(0,245,196,0.4); }
+
+/* replies in modal */
+.modal-replies-list { padding: 0 20px 20px; }
+.modal-reply-item {
+  display: flex; gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  animation: fadeIn 0.2s ease;
+}
+.modal-reply-item:last-child { border-bottom: none; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ════ FEED PAGE ════ -->
+<div class="page active" id="page-feed">
+  <div class="app">
+    <div class="topnav">
+      <div class="nav-logo" onclick="goHome()">Drama<span>Thread</span></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" title="通知">🔔</button>
+        <button class="nav-icon-btn" title="DM">✉️</button>
+      </div>
+    </div>
+
+    <div class="feed-tabs">
+      <button class="feed-tab active" onclick="setFeedTab('all', this)">すべて</button>
+      <button class="feed-tab" onclick="setFeedTab('nospoiler', this)">ネタバレなし</button>
+      <button class="feed-tab" onclick="setFeedTab('spoiler', this)">ネタバレあり</button>
+    </div>
+
+    <!-- COMPOSER -->
+    <div class="composer">
+      <div>
+        <div class="composer-avatar">あ</div>
+      </div>
+      <div class="composer-right">
+        <div class="composer-name">あなた</div>
+        <div class="composer-inputs">
+          <input class="c-drama-input" id="c-drama" placeholder="📺 ドラマタイトル" autocomplete="off" />
+          <!-- 話数ドロップダウン -->
+          <div class="ep-field-wrap" id="ep-field-wrap">
+            <div class="ep-dropdown-btn" id="ep-dropdown-btn" onclick="toggleEpDropdown()">
+              <span id="ep-selected-val" class="ep-selected-val default">🎬 話数を選ぶ</span>
+              <span class="ep-dropdown-arrow">▼</span>
+            </div>
+            <div class="ep-dropdown-menu" id="ep-dropdown-menu">
+              <div class="ep-dropdown-item all selected" onclick="selectEpisode('全体', this)">📺 全体（シリーズ全体の感想）</div>
+              <div class="ep-dropdown-divider">各話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('1話', this)">1話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('2話', this)">2話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('3話', this)">3話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('4話', this)">4話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('5話', this)">5話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('6話', this)">6話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('7話', this)">7話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('8話', this)">8話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('9話', this)">9話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('10話', this)">10話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('11話', this)">11話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('12話', this)">12話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('13話', this)">13話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('14話', this)">14話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('15話', this)">15話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('16話', this)">16話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('17話', this)">17話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('18話', this)">18話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('19話', this)">19話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('20話', this)">20話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('21話', this)">21話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('22話', this)">22話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('23話', this)">23話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('24話', this)">24話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('25話', this)">25話</div>
+              <div class="ep-dropdown-item" onclick="selectEpisode('最終話', this)">🏁 最終話</div>
+            </div>
+          </div>
+          <input class="c-drama-input" id="c-user" placeholder="👤 ニックネーム" />
+          <textarea class="c-input" id="c-body" rows="2" placeholder="感想をシェアしよう…" oninput="onBodyInput()"></textarea>
+          <div class="mod-warn" id="mod-warn">⚠️ <span id="mod-msg"></span></div>
+        </div>
+        <div class="composer-footer">
+          <div class="c-tools">
+            <div class="c-stars" id="c-stars">
+              <button class="c-star" data-v="1">★</button>
+              <button class="c-star" data-v="2">★</button>
+              <button class="c-star" data-v="3">★</button>
+              <button class="c-star" data-v="4">★</button>
+              <button class="c-star" data-v="5">★</button>
+            </div>
+            <div class="c-spoiler-chip" id="c-spoiler" onclick="toggleSpoiler()">
+              <div class="c-spoiler-dot"></div>
+              ネタバレ
+            </div>
+          </div>
+          <button class="post-btn" id="post-btn" onclick="submitPost()">投稿</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEED -->
+    <div id="feed"></div>
+  </div>
+</div>
+
+<!-- ════ DRAMA DETAIL PAGE ════ -->
+<div class="page" id="page-drama">
+  <div class="app">
+    <div class="drama-page-topnav">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <div class="drama-page-title" id="drama-page-title">ドラマ詳細</div>
+    </div>
+
+    <div id="drama-detail-content"></div>
+  </div>
+</div>
+
+<!-- ════ SEARCH PAGE ════ -->
+<div class="page" id="page-search">
+  <div class="app">
+    <div class="topnav">
+      <div class="nav-logo" onclick="goHome()">Drama<span>Thread</span></div>
+    </div>
+    <div class="search-header">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="s-input" placeholder="ドラマを検索…" oninput="onSearch(this.value)" id="search-inp">
+      </div>
+    </div>
+    <div id="search-results"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomnav">
+  <button class="bnav-btn active" id="bnav-home" onclick="switchPage('feed')">
+    <span>🏠</span><span>ホーム</span>
+  </button>
+  <button class="bnav-btn" id="bnav-search" onclick="switchPage('search')">
+    <span>🔍</span><span>検索</span>
+  </button>
+  <button class="bnav-btn" id="bnav-notif">
+    <span>🔔</span><span>通知</span>
+  </button>
+  <button class="bnav-btn" id="bnav-profile">
+    <span>👤</span><span>プロフィール</span>
+  </button>
+</div>
+
+<!-- REPLY MODAL -->
+<div class="reply-modal-backdrop" id="reply-modal-backdrop" onclick="closeReplyModal()">
+  <div class="reply-modal" onclick="event.stopPropagation()">
+    <div class="reply-modal-header">
+      <div class="reply-modal-title">返信する</div>
+      <button class="reply-modal-close" onclick="closeReplyModal()">✕</button>
+    </div>
+    <div class="reply-modal-scroll">
+      <!-- original post preview -->
+      <div class="reply-modal-orig" id="reply-modal-orig"></div>
+      <!-- reply input -->
+      <div class="reply-modal-input-area">
+        <div class="reply-avatar" style="width:36px;height:36px;font-size:14px">あ</div>
+        <div class="reply-modal-input-right">
+          <input class="reply-modal-name" id="reply-modal-name" placeholder="ニックネーム" />
+          <textarea class="reply-modal-textarea" id="reply-modal-text" placeholder="返信を書く…" oninput="onReplyInput()"></textarea>
+        </div>
+      </div>
+      <!-- existing replies -->
+      <div class="modal-replies-list" id="modal-replies-list"></div>
+    </div>
+    <div class="reply-modal-footer">
+      <span class="reply-modal-warn" id="reply-modal-warn"></span>
+      <button class="reply-modal-submit" onclick="submitReply()">返信</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="sheet-backdrop" id="sheet-backdrop" onclick="closeSheet()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">この投稿について</div>
+    <button class="sheet-option danger" onclick="confirmReport()"><span class="sheet-icon">🚩</span>通報する</button>
+    <button class="sheet-option" onclick="closeSheet()"><span class="sheet-icon">✕</span>キャンセル</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ════ SUPABASE 設定 ════
+const SUPABASE_URL = 'https://skrkdcvjwnqwogszdhka.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNrcmtkY3Zqd25xd29nc3pkaGthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjgzOTksImV4cCI6MjA4NzgwNDM5OX0.H1Y9f2aw4u_AqlVPKCWEsXYKeNqK5l-OJFwZV2_odUM';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ════ 定数 ════
+const NG = ['死ね','ブス','キモい','うざい','消えろ','デブ','バカ','アホ','クソ','ゴミ','氏ね','殺す','クズ','きもい','不細工','キモ'];
+const COLORS = [
+  'linear-gradient(135deg,#00f5c4,#0077ff)',
+  'linear-gradient(135deg,#fa5c8a,#7b5cfa)',
+  'linear-gradient(135deg,#f5c842,#fa5c8a)',
+  'linear-gradient(135deg,#7b5cfa,#00f5c4)',
+];
+
+const DRAMAS = {
+  '不適切にもほどがある！': { emoji:'📺', genre:['コメディ','タイムスリップ','ヒューマン'], channel:'TBS', day:'金曜', time:'22:00〜22:54', episodes:10, year:2024, streaming:[{name:'TBSドラマ公式',icon:'📡'},{name:'Paravi',icon:'🎬'},{name:'Amazon Prime',icon:'📦'},{name:'Netflix',icon:'🎥'}], desc:'昭和のおじさんが令和にタイムスリップ。コンプライアンスに縛られた現代社会を痛烈に風刺するコメディドラマ。' },
+  '光る君へ': { emoji:'📜', genre:['大河','歴史','ラブストーリー'], channel:'NHK', day:'日曜', time:'20:00〜20:45', episodes:48, year:2024, streaming:[{name:'NHKオンデマンド',icon:'📡'},{name:'U-NEXT',icon:'🎬'}], desc:'紫式部（まひろ）の生涯と、平安貴族の華やかな世界を描く大河ドラマ。' },
+  'おむすび': { emoji:'🍙', genre:['朝ドラ','ヒューマン','成長'], channel:'NHK', day:'月〜土曜', time:'08:00〜08:15', episodes:120, year:2024, streaming:[{name:'NHKオンデマンド',icon:'📡'},{name:'TVer',icon:'📱'}], desc:'栄養士を目指す少女の成長を描く連続テレビ小説。' },
+};
+
+// ════ 状態 ════
+let posts = [];
+let feedFilter = 'all';
+let currentPage = 'feed';
+let currentDrama = null;
+let currentRating = 0;
+let hasSpoiler = false;
+let selectedEpisode = '全体';
+let dramaEpFilter = 'all';
+let replyTargetId = null;
+let reportTarget = null;
+
+// ════ ユーティリティ ════
+function avatarColor(name) {
+  let h = 0; for (let c of name) h += c.charCodeAt(0);
+  return COLORS[h % COLORS.length];
+}
+function timeAgo(ts) {
+  const diff = (Date.now() - new Date(ts)) / 1000;
+  if (diff < 60) return 'たった今';
+  if (diff < 3600) return `${Math.floor(diff/60)}分前`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}時間前`;
+  return `${Math.floor(diff/86400)}日前`;
+}
+function checkNG(text) { return NG.filter(w => text.includes(w)); }
+
+// ════ DB: 投稿読み込み ════
+async function loadPosts() {
+  showLoading(true);
+  const { data, error } = await sb
+    .from('posts')
+    .select('*, replies(*)')
+    .order('created_at', { ascending: false });
+  if (error) { console.error(error); showToast('データ読み込みエラー', 'warn'); showLoading(false); return; }
+
+  posts = (data || []).map(p => ({
+    id: p.id,
+    user: p.user_name,
+    avatar: p.avatar,
+    avatarColor: p.avatar_color,
+    drama: p.drama,
+    episode: p.episode,
+    rating: p.rating,
+    body: p.body,
+    spoiler: p.spoiler,
+    likes: p.likes,
+    liked: false,
+    frozen: p.frozen,
+    time: timeAgo(p.created_at),
+    replies: (p.replies || []).map(r => ({
+      id: r.id,
+      user: r.user_name,
+      avatar: r.avatar,
+      avatarColor: r.avatar_color,
+      body: r.body,
+      likes: r.likes,
+      liked: false,
+      time: timeAgo(r.created_at),
+    })).sort((a,b) => a.id - b.id),
+  }));
+
+  showLoading(false);
+  renderFeed();
+  if (currentDrama) renderDramaPage(currentDrama);
+}
+
+// ════ DB: 投稿 ════
+async function submitPost() {
+  const drama = document.getElementById('c-drama').value.trim();
+  const user  = document.getElementById('c-user').value.trim();
+  const body  = document.getElementById('c-body').value.trim();
+  if (!drama || !user || !body) { showToast('必須項目を入力してください', 'warn'); return; }
+
+  const viol = checkNG(body);
+  if (viol.length) {
+    await handleViolation(user);
+    return;
+  }
+
+  const ep = selectedEpisode || '全体';
+  const { error } = await sb.from('posts').insert({
+    user_name: user,
+    avatar: user[0],
+    avatar_color: avatarColor(user),
+    drama, episode: ep,
+    rating: currentRating || 3,
+    body, spoiler: hasSpoiler,
+  });
+  if (error) { showToast('投稿に失敗しました', 'warn'); console.error(error); return; }
+
+  // フォームリセット
+  document.getElementById('c-drama').value = '';
+  document.getElementById('c-user').value = '';
+  document.getElementById('c-body').value = '';
+  selectedEpisode = '全体';
+  document.querySelectorAll('.ep-dropdown-item').forEach(c => c.classList.remove('selected'));
+  const allItem = document.querySelector('.ep-dropdown-item.all');
+  if (allItem) allItem.classList.add('selected');
+  const val = document.getElementById('ep-selected-val');
+  if (val) { val.textContent = '🎬 話数を選ぶ'; val.classList.add('default'); }
+  currentRating = 0; hasSpoiler = false;
+  updateStars();
+  document.getElementById('c-spoiler').classList.remove('on');
+  document.getElementById('mod-warn').classList.remove('show');
+
+  showToast('✨ 投稿しました！', 'neon');
+  await loadPosts();
+}
+
+// ════ DB: いいね ════
+async function toggleLike(id) {
+  const p = posts.find(p => p.id === id);
+  if (!p || p.frozen) return;
+  p.liked = !p.liked;
+  const newLikes = p.liked ? p.likes + 1 : p.likes - 1;
+  await sb.from('posts').update({ likes: newLikes }).eq('id', id);
+  p.likes = newLikes;
+  renderFeed();
+  if (currentDrama) renderDramaPage(currentDrama);
+}
+
+// ════ DB: リプライ投稿 ════
+async function submitReply() {
+  const name = document.getElementById('reply-modal-name').value.trim();
+  const text = document.getElementById('reply-modal-text').value.trim();
+  if (!name || !text) { showToast('ニックネームと返信内容を入力してください', 'warn'); return; }
+
+  const viol = checkNG(text);
+  if (viol.length) {
+    await handleViolation(name, true);
+    return;
+  }
+
+  const { error } = await sb.from('replies').insert({
+    post_id: replyTargetId,
+    user_name: name,
+    avatar: name[0],
+    avatar_color: avatarColor(name),
+    body: text,
+  });
+  if (error) { showToast('返信に失敗しました', 'warn'); console.error(error); return; }
+
+  document.getElementById('reply-modal-text').value = '';
+  document.getElementById('reply-modal-warn').textContent = '';
+  showToast('💬 返信しました！', 'neon');
+  await loadPosts();
+  // モーダルのリプライ再描画
+  const p = posts.find(x => x.id === replyTargetId);
+  if (p) renderModalReplies(p);
+}
+
+// ════ DB: リプライいいね ════
+async function toggleReplyLike(postId, replyId) {
+  const p = posts.find(x => x.id === postId);
+  if (!p) return;
+  const r = (p.replies||[]).find(x => x.id === replyId);
+  if (!r) return;
+  r.liked = !r.liked;
+  const newLikes = r.liked ? r.likes + 1 : r.likes - 1;
+  await sb.from('replies').update({ likes: newLikes }).eq('id', replyId);
+  r.likes = newLikes;
+  renderFeed();
+  if (currentDrama) renderDramaPage(currentDrama);
+  if (replyTargetId === postId) renderModalReplies(p);
+}
+
+// ════ DB: 通報・凍結 ════
+async function handleViolation(userName, isReply = false) {
+  // violations テーブルで件数確認・更新
+  const { data: existing } = await sb.from('violations').select('*').eq('user_name', userName).single();
+  if (existing) {
+    const newCount = existing.count + 1;
+    const shouldFreeze = newCount >= 2;
+    await sb.from('violations').update({ count: newCount, frozen: shouldFreeze }).eq('user_name', userName);
+    if (shouldFreeze) {
+      await sb.from('posts').update({ frozen: true }).eq('user_name', userName);
+      showToast(`🔒 ${userName} のアカウントを凍結しました`, 'warn');
+    } else {
+      showToast(`⚠️ 警告 ${newCount}/2 — あと${2-newCount}回で凍結`, 'warn');
+    }
+  } else {
+    await sb.from('violations').insert({ user_name: userName, count: 1, frozen: false });
+    showToast(`⚠️ 警告 1/2 — あと1回で凍結`, 'warn');
+  }
+  await loadPosts();
+}
+
+async function confirmReport() {
+  const p = posts.find(p => p.id === reportTarget);
+  if (p) await handleViolation(p.user);
+  closeSheet();
+}
+
+// ════ Realtime ════
+function subscribeRealtime() {
+  sb.channel('public:posts')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => loadPosts())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'replies' }, () => loadPosts())
+    .subscribe();
+}
+
+// ════ ローディング ════
+function showLoading(on) {
+  let el = document.getElementById('feed-loading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'feed-loading';
+    el.style.cssText = 'padding:40px;text-align:center;color:var(--text3);font-size:14px;';
+    el.textContent = '読み込み中…';
+    document.getElementById('feed').prepend(el);
+  }
+  el.style.display = on ? 'block' : 'none';
+}
+
+// ════ RENDER FEED ════
+function renderFeed() {
+  const el = document.getElementById('feed');
+  let list = posts;
+  if (feedFilter === 'nospoiler') list = posts.filter(p => !p.spoiler);
+  if (feedFilter === 'spoiler') list = posts.filter(p => p.spoiler);
+  if (list.length === 0) {
+    el.innerHTML = '<div style="padding:60px 16px;text-align:center;color:var(--text3)">まだ投稿がありません<br>最初の感想を投稿しましょう！</div>';
+    return;
+  }
+  el.innerHTML = list.map((p, i) => renderPost(p, i)).join('');
+}
+
+function renderPost(p, i = 0) {
+  const stars = [1,2,3,4,5].map(s => `<span class="p-star ${s<=p.rating?'on':''}">★</span>`).join('');
+  const bodyHtml = p.frozen
+    ? '<span style="color:var(--text3)">[規約違反により非表示]</span>'
+    : p.spoiler
+      ? `<div class="p-text"><span class="spoiler-blur" onclick="this.classList.toggle('revealed')">${p.body}</span></div>`
+      : `<div class="p-text">${p.body}</div>`;
+  const replyCount = (p.replies||[]).length;
+  return `
+  <div class="post-card ${p.frozen?'frozen':''}" style="animation-delay:${i*0.04}s">
+    <div class="post-inner">
+      <div class="post-avatar-col">
+        <div class="p-avatar" style="background:${p.avatarColor}">${p.avatar}</div>
+        <div class="thread-line"></div>
+      </div>
+      <div class="post-body-col">
+        <div class="post-head">
+          <span class="p-username">${p.user}${p.frozen?' 🔒':''}</span>
+          <span class="p-time">${p.time}</span>
+        </div>
+        <div class="p-drama-tag" onclick="openDrama('${p.drama}')">📺 ${p.drama} <span class="arrow">↗</span></div>
+        ${p.episode ? `<div class="ep-badge ${p.episode==='全体'?'all':''}">🎬 ${p.episode}</div>` : ''}
+        <div class="p-stars">${stars}</div>
+        ${p.spoiler ? '<div class="spoiler-badge">⚠️ ネタバレあり — タップで表示</div>' : ''}
+        ${bodyHtml}
+        <div class="post-actions">
+          <button class="p-action ${p.liked?'liked':''}" onclick="toggleLike(${p.id})">
+            <span class="icon">${p.liked?'♥':'♡'}</span> ${p.likes}
+          </button>
+          <button class="p-action" onclick="openReplyModal(${p.id})">
+            <span class="icon">💬</span> ${replyCount > 0 ? replyCount : '返信'}
+          </button>
+          <button class="p-action" onclick="openReport(${p.id})"><span class="icon">🚩</span></button>
+        </div>
+      </div>
+    </div>
+    ${replyCount > 0 ? renderInlineReplies(p) : ''}
+  </div>`;
+}
+
+// ════ INLINE REPLIES ════
+function renderInlineReplies(p) {
+  const replies = p.replies || [];
+  if (replies.length === 0) return '';
+  const preview = replies[replies.length - 1];
+  const moreCount = replies.length - 1;
+  return `
+    <div style="padding:0 16px 12px 68px;">
+      <div class="reply-item">
+        <div class="r-avatar" style="background:${preview.avatarColor||'linear-gradient(135deg,var(--neon2),var(--neon3))'}">${preview.avatar}</div>
+        <div class="r-body">
+          <div class="r-head">
+            <span class="r-name">${preview.user}</span>
+            <span class="r-time">${preview.time}</span>
+          </div>
+          <div class="r-text">${preview.body}</div>
+          <div class="r-actions">
+            <button class="r-action ${preview.liked?'liked':''}" onclick="toggleReplyLike(${p.id},${preview.id})">
+              ${preview.liked?'♥':'♡'} ${preview.likes}
+            </button>
+            <button class="r-action" onclick="openReplyModal(${p.id})">返信</button>
+          </div>
+        </div>
+      </div>
+      ${moreCount > 0 ? `<button class="show-replies-btn" onclick="openReplyModal(${p.id})">— 他${moreCount}件の返信を見る</button>` : ''}
+    </div>`;
+}
+
+// ════ REPLY MODAL ════
+function openReplyModal(postId) {
+  replyTargetId = postId;
+  const p = posts.find(x => x.id === postId);
+  if (!p) return;
+  document.getElementById('reply-modal-orig').innerHTML = `
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <div class="r-avatar" style="background:${p.avatarColor};width:32px;height:32px;font-size:12px;">${p.avatar}</div>
+      <div>
+        <div class="p-username" style="font-size:13px;margin-bottom:3px">${p.user} <span style="color:var(--text3);font-weight:400">${p.time}</span></div>
+        <div class="p-text" style="font-size:13px;color:var(--text2);margin-bottom:0">${p.frozen?'[規約違反により非表示]':p.body.slice(0,120)+(p.body.length>120?'…':'')}</div>
+      </div>
+    </div>`;
+  renderModalReplies(p);
+  document.getElementById('reply-modal-text').value = '';
+  document.getElementById('reply-modal-warn').textContent = '';
+  document.getElementById('reply-modal-backdrop').classList.add('open');
+  setTimeout(() => document.getElementById('reply-modal-text').focus(), 300);
+}
+
+function renderModalReplies(p) {
+  const replies = p.replies || [];
+  document.getElementById('modal-replies-list').innerHTML = replies.length === 0
+    ? '<div style="padding:20px 0;text-align:center;color:var(--text3);font-size:13px">まだ返信がありません</div>'
+    : replies.map(r => `
+      <div class="modal-reply-item">
+        <div class="r-avatar" style="background:${r.avatarColor||'linear-gradient(135deg,var(--neon2),var(--neon3))'};width:32px;height:32px;font-size:12px">${r.avatar}</div>
+        <div class="r-body">
+          <div class="r-head"><span class="r-name">${r.user}</span><span class="r-time">${r.time}</span></div>
+          <div class="r-text">${r.body}</div>
+          <div class="r-actions">
+            <button class="r-action ${r.liked?'liked':''}" onclick="toggleReplyLike(${p.id},${r.id})">${r.liked?'♥':'♡'} ${r.likes}</button>
+            <button class="r-action" onclick="openReport(${p.id})">🚩</button>
+          </div>
+        </div>
+      </div>`).join('');
+}
+
+function closeReplyModal() {
+  document.getElementById('reply-modal-backdrop').classList.remove('open');
+  replyTargetId = null;
+}
+
+function onReplyInput() {
+  const text = document.getElementById('reply-modal-text').value;
+  const found = checkNG(text);
+  document.getElementById('reply-modal-warn').textContent = found.length ? `⚠️「${found[0]}」など不適切な表現が含まれています` : '';
+}
+
+// ════ DRAMA PAGE ════
+function openDrama(name) {
+  currentDrama = name;
+  dramaEpFilter = 'all';
+  document.getElementById('drama-page-title').textContent = name;
+  renderDramaPage(name);
+  showPage('drama');
+}
+
+function renderDramaPage(name) {
+  const d = DRAMAS[name];
+  const dramaPosts = posts.filter(p => p.drama === name);
+  const avgRating = dramaPosts.length
+    ? (dramaPosts.reduce((a, p) => a + p.rating, 0) / dramaPosts.length).toFixed(1) : '-';
+  const dist = [5,4,3,2,1].map(s => ({ star:s, count: dramaPosts.filter(p=>p.rating===s).length }));
+  const maxDist = Math.max(...dist.map(d=>d.count), 1);
+
+  const streamingHtml = d ? d.streaming.map(s => `<div class="stream-badge"><span class="stream-icon">${s.icon}</span>${s.name}</div>`).join('') : '';
+
+  const infoHtml = d ? `
+    <div class="drama-hero">
+      <div class="drama-title-row">
+        <div class="drama-thumb">${d.emoji}</div>
+        <div class="drama-info">
+          <div class="drama-main-title">${name}</div>
+          <div style="font-size:13px;color:var(--text2);margin-top:4px">${d.desc}</div>
+          <div class="drama-genre-tags">${d.genre.map(g=>`<span class="genre-chip">${g}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="drama-rating-big">
+        <div class="rating-num">${avgRating}</div>
+        <div class="rating-right">
+          <div class="rating-stars-big">${[1,2,3,4,5].map(s=>`<span class="r-star ${parseFloat(avgRating)>=s?'on':''}">★</span>`).join('')}</div>
+          <div class="rating-count">${dramaPosts.length}件のレビュー</div>
+        </div>
+      </div>
+      <div class="drama-info-grid">
+        <div class="info-card"><div class="info-card-label">放送局</div><div class="info-card-val">${d.channel}</div></div>
+        <div class="info-card"><div class="info-card-label">放送時間</div><div class="info-card-val">${d.day}</div><div class="info-card-sub">${d.time}</div></div>
+        <div class="info-card"><div class="info-card-label">全話数</div><div class="info-card-val">${d.episodes}話</div></div>
+        <div class="info-card"><div class="info-card-label">放送年</div><div class="info-card-val">${d.year}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">視聴方法</div>
+      <div class="streaming-row">${streamingHtml}</div>
+    </div>
+    <div class="drama-tabs">
+      <button class="drama-tab active" onclick="setDramaTab('reviews',this)">口コミ</button>
+      <button class="drama-tab" onclick="setDramaTab('stats',this)">統計</button>
+    </div>`
+  : `<div style="padding:24px 16px;color:var(--text2)">このドラマの詳細情報はまだ登録されていません</div>
+     <div class="drama-tabs"><button class="drama-tab active" onclick="setDramaTab('reviews',this)">口コミ</button></div>`;
+
+  const statsHtml = `
+    <div id="drama-tab-stats" style="display:none">
+      <div class="stat-bar-wrap">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px">評価の分布</div>
+        ${dist.map(d=>`
+          <div class="stat-bar-row">
+            <div class="stat-bar-label">★${d.star}</div>
+            <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${Math.round(d.count/maxDist*100)}%"></div></div>
+            <div class="stat-bar-cnt">${d.count}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  const reviewsHtml = `
+    <div id="drama-tab-reviews">
+      ${buildEpFilterBar(name)}
+      ${dramaPosts.length === 0
+        ? `<div style="padding:40px 16px;text-align:center;color:var(--text3)">まだ口コミがありません<br>最初の感想を投稿しましょう！</div>`
+        : dramaPosts.map((p,i) => renderPost(p,i)).join('')}
+    </div>`;
+
+  document.getElementById('drama-detail-content').innerHTML = infoHtml + reviewsHtml + statsHtml;
+}
+
+function setDramaTab(tab, btn) {
+  document.querySelectorAll('.drama-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('drama-tab-reviews').style.display = tab === 'reviews' ? 'block' : 'none';
+  const stats = document.getElementById('drama-tab-stats');
+  if (stats) stats.style.display = tab === 'stats' ? 'block' : 'none';
+}
+
+// ════ EPISODE FILTER (ドラマページ) ════
+function buildEpFilterBar(name) {
+  const dramaPosts = posts.filter(p => p.drama === name);
+  const episodes = [...new Set(dramaPosts.map(p => p.episode || '全体'))];
+  episodes.sort((a, b) => {
+    if (a === '全体') return -1;
+    if (b === '全体') return 1;
+    return parseInt(a) - parseInt(b);
+  });
+  if (episodes.length <= 1) return '';
+  return `
+    <div class="ep-filter-bar" id="ep-filter-bar">
+      <div class="ep-filter-inner">
+        <div class="ep-filter-chip all active" onclick="setEpFilter('all',this)">すべて</div>
+        ${episodes.map(ep => `<div class="ep-filter-chip ${ep==='全体'?'all':''}" onclick="setEpFilter('${ep}',this)">${ep}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function setEpFilter(ep, el) {
+  dramaEpFilter = ep;
+  document.querySelectorAll('.ep-filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const allPosts = posts.filter(p => p.drama === currentDrama);
+  const filtered = ep === 'all' ? allPosts : allPosts.filter(p => (p.episode||'全体') === ep);
+  const reviewsEl = document.getElementById('drama-tab-reviews');
+  if (reviewsEl) {
+    const bar = reviewsEl.querySelector('.ep-filter-bar')?.outerHTML || '';
+    reviewsEl.innerHTML = bar + (filtered.length === 0
+      ? `<div style="padding:40px 16px;text-align:center;color:var(--text3)">「${ep}」の口コミはまだありません</div>`
+      : filtered.map((p,i) => renderPost(p,i)).join(''));
+  }
+}
+
+// ════ EPISODE DROPDOWN (投稿フォーム) ════
+function toggleEpDropdown() {
+  document.getElementById('ep-dropdown-btn').classList.toggle('open');
+  document.getElementById('ep-dropdown-menu').classList.toggle('open');
+}
+function selectEpisode(ep, el) {
+  selectedEpisode = ep;
+  document.querySelectorAll('.ep-dropdown-item').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const val = document.getElementById('ep-selected-val');
+  val.textContent = ep === '全体' ? '📺 全体（シリーズ全体）' : `🎬 ${ep}`;
+  val.classList.remove('default');
+  document.getElementById('ep-dropdown-btn').classList.remove('open');
+  document.getElementById('ep-dropdown-menu').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('ep-field-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('ep-dropdown-btn')?.classList.remove('open');
+    document.getElementById('ep-dropdown-menu')?.classList.remove('open');
+  }
+});
+
+// ════ STARS ════
+document.querySelectorAll('.c-star').forEach(btn => {
+  btn.addEventListener('click', () => { currentRating = parseInt(btn.dataset.v); updateStars(); });
+  btn.addEventListener('mouseenter', () => {
+    const v = parseInt(btn.dataset.v);
+    document.querySelectorAll('.c-star').forEach(b => b.classList.toggle('on', parseInt(b.dataset.v) <= v));
+  });
+  btn.addEventListener('mouseleave', updateStars);
+});
+function updateStars() {
+  document.querySelectorAll('.c-star').forEach(b => b.classList.toggle('on', parseInt(b.dataset.v) <= currentRating));
+}
+
+// ════ SPOILER ════
+function toggleSpoiler() {
+  hasSpoiler = !hasSpoiler;
+  document.getElementById('c-spoiler').classList.toggle('on', hasSpoiler);
+}
+
+// ════ MOD WARNING (入力中) ════
+function onBodyInput() {
+  const text = document.getElementById('c-body').value;
+  const found = checkNG(text);
+  const warn = document.getElementById('mod-warn');
+  const msg  = document.getElementById('mod-msg');
+  if (found.length) {
+    msg.textContent = `「${found[0]}」など不適切な表現が含まれています。出演者への誹謗中傷はアカウント凍結の対象です。`;
+    warn.classList.add('show');
+  } else { warn.classList.remove('show'); }
+}
+
+// ════ REPORT ════
+function openReport(id) { reportTarget = id; document.getElementById('sheet-backdrop').classList.add('open'); }
+function closeSheet() { document.getElementById('sheet-backdrop').classList.remove('open'); }
+
+// ════ FEED FILTER ════
+function setFeedTab(mode, btn) {
+  feedFilter = mode;
+  document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderFeed();
+}
+
+// ════ SEARCH ════
+function onSearch(q) {
+  const res = document.getElementById('search-results');
+  if (!q) { renderTrending(); return; }
+  const names = [...new Set(posts.map(p => p.drama))].filter(n => n.includes(q));
+  res.innerHTML = `<div class="trending-section">${names.length === 0
+    ? '<div style="color:var(--text3);text-align:center;padding:40px 0">見つかりませんでした</div>'
+    : names.map(n => {
+        const cnt = posts.filter(p => p.drama === n).length;
+        return `<div class="trending-drama-item" onclick="openDrama('${n}')">
+          <div class="td-info"><div class="td-name">${n}</div><div class="td-meta">${cnt}件の口コミ</div></div>
+        </div>`;
+      }).join('')
+  }</div>`;
+}
+
+function renderTrending() {
+  const counts = {};
+  posts.forEach(p => { counts[p.drama] = (counts[p.drama]||0) + 1; });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('search-results').innerHTML = `
+    <div class="trending-section">
+      <div class="trending-label">🔥 トレンド</div>
+      ${sorted.map(([name,cnt],i) => `
+        <div class="trending-drama-item" onclick="openDrama('${name}')">
+          <div class="td-rank ${i<3?'top':''}">${i+1}</div>
+          <div class="td-info"><div class="td-name">${name}</div><div class="td-meta">${cnt}件の口コミ</div></div>
+          <div class="td-count">${cnt}件</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ════ PAGE NAV ════
+function switchPage(name) {
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('bnav-' + ({feed:'home',search:'search'}[name]||'home')).classList.add('active');
+  showPage(name);
+  if (name === 'search') renderTrending();
+}
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  currentPage = name;
+  window.scrollTo(0, 0);
+}
+function goBack() { showPage('feed'); currentDrama = null; }
+function goHome() { switchPage('feed'); }
+
+// ════ TOAST ════
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ════ INIT ════
+loadPosts();
+subscribeRealtime();
+</script>
+</body>
+</html>
