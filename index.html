@@ -1231,22 +1231,37 @@ body {
       <button class="auth-close" onclick="closeAuthModal()">✕</button>
     </div>
     <div class="auth-modal-body">
+      <!-- ソーシャルログイン -->
+      <div class="social-btns">
+        <button class="social-btn google" onclick="doOAuth('google')">
+          <span class="social-icon">G</span> Googleで続ける
+        </button>
+        <button class="social-btn twitter" onclick="doOAuth('twitter')">
+          <span class="social-icon">𝕏</span> Xで続ける
+        </button>
+      </div>
+      <div class="auth-divider"><span>またはメールで</span></div>
+
+      <!-- ログインフォーム -->
       <div id="auth-login-form">
         <div class="auth-field"><label class="auth-label">メールアドレス</label><input class="auth-input" id="login-email" type="email" placeholder="mail@example.com" /></div>
         <div class="auth-field"><label class="auth-label">パスワード</label><input class="auth-input" id="login-password" type="password" placeholder="••••••••" /></div>
         <div class="auth-error" id="login-error"></div>
         <button class="auth-submit-btn" onclick="doLogin()">ログイン</button>
-        <div class="auth-divider"><span>または</span></div>
-        <button class="auth-guest-btn" onclick="closeAuthModal()">ゲストとして続ける</button>
       </div>
+
+      <!-- 新規登録フォーム -->
       <div id="auth-signup-form" style="display:none">
         <div class="auth-field"><label class="auth-label">ニックネーム</label><input class="auth-input" id="signup-name" type="text" placeholder="例：ドラマ好き花子" /></div>
         <div class="auth-field"><label class="auth-label">メールアドレス</label><input class="auth-input" id="signup-email" type="email" placeholder="mail@example.com" /></div>
         <div class="auth-field"><label class="auth-label">パスワード（6文字以上）</label><input class="auth-input" id="signup-password" type="password" placeholder="••••••••" /></div>
         <div class="auth-error" id="signup-error"></div>
         <button class="auth-submit-btn" onclick="doSignup()">登録する</button>
-        <div class="auth-divider"><span>または</span></div>
-        <button class="auth-guest-btn" onclick="closeAuthModal()">ゲストとして続ける</button>
+      </div>
+
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:var(--text3)">
+        登録しなくてもドラマを閲覧できます。
+        <span style="color:var(--neon2);cursor:pointer" onclick="closeAuthModal()">ゲストとして閲覧する →</span>
       </div>
     </div>
   </div>
@@ -1257,65 +1272,115 @@ body {
   <div class="app">
     <div class="topnav">
       <div class="nav-logo" onclick="goHome()">Drama<span>Thread</span></div>
-      <div class="nav-right" id="profile-page-nav-right"></div>
+      <div class="nav-right" id="profile-page-topnav-right"></div>
     </div>
     <div id="profile-content"></div>
   </div>
 </div>
 
 <style>
-.modal-backdrop { position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px; }
-.modal-backdrop.open { display:flex; }
-.auth-modal { background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:400px;animation:fadeIn 0.25s ease;overflow:hidden; }
-.auth-modal-header { display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0; }
-.auth-tabs { display:flex; }
-.auth-tab { padding:10px 20px;background:none;border:none;font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s; }
-.auth-tab.active { color:var(--text);border-bottom-color:var(--neon2); }
-.auth-close { background:var(--bg3);border:none;color:var(--text2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
-.auth-close:hover { background:var(--border2);color:var(--text); }
-.auth-modal-body { padding:20px; }
-.auth-field { margin-bottom:14px; }
-.auth-label { display:block;font-size:12px;color:var(--text3);letter-spacing:0.06em;margin-bottom:6px;text-transform:uppercase; }
-.auth-input { width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text);font-family:'Zen Kaku Gothic New',sans-serif;outline:none;transition:border-color 0.2s; }
-.auth-input:focus { border-color:var(--neon2); }
-.auth-error { font-size:12px;color:var(--neon3);margin-bottom:10px;min-height:16px; }
-.auth-submit-btn { width:100%;background:var(--text);color:var(--bg);border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s; }
-.auth-submit-btn:hover { background:var(--neon);box-shadow:0 0 16px rgba(0,245,196,0.3); }
-.auth-divider { text-align:center;margin:14px 0;position:relative;font-size:12px;color:var(--text3); }
-.auth-divider::before,.auth-divider::after { content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border2); }
-.auth-divider::before { left:0; } .auth-divider::after { right:0; }
-.auth-guest-btn { width:100%;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:10px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s; }
-.auth-guest-btn:hover { border-color:var(--text2);color:var(--text); }
+/* AUTH MODAL */
+.modal-backdrop{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-backdrop.open{display:flex;}
+.auth-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:400px;animation:slideUp 0.25s ease;overflow:hidden;}
+.auth-modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;}
+.auth-tabs{display:flex;}
+.auth-tab{padding:10px 22px;background:none;border:none;font-family:'Zen Kaku Gothic New',sans-serif;font-size:14px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.auth-tab.active{color:var(--text);border-bottom-color:var(--neon2);}
+.auth-close{background:var(--bg3);border:none;color:var(--text2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.auth-close:hover{background:var(--border2);color:var(--text);}
+.auth-modal-body{padding:20px;}
+.social-btns{display:flex;flex-direction:column;gap:10px;}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;border:1px solid var(--border2);}
+.social-btn.google{background:#fff;color:#222;}
+.social-btn.google:hover{background:#f5f5f5;box-shadow:0 2px 12px rgba(255,255,255,0.2);}
+.social-btn.twitter{background:#000;color:#fff;border-color:#333;}
+.social-btn.twitter:hover{background:#111;box-shadow:0 2px 12px rgba(255,255,255,0.1);}
+.social-icon{font-size:16px;font-weight:700;}
+.auth-field{margin-bottom:13px;}
+.auth-label{display:block;font-size:11px;color:var(--text3);letter-spacing:0.07em;margin-bottom:5px;text-transform:uppercase;}
+.auth-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-size:14px;color:var(--text);font-family:'Zen Kaku Gothic New',sans-serif;outline:none;transition:border-color 0.2s;}
+.auth-input:focus{border-color:var(--neon2);}
+.auth-error{font-size:12px;color:var(--neon3);margin-bottom:10px;min-height:16px;}
+.auth-submit-btn{width:100%;background:var(--text);color:var(--bg);border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;}
+.auth-submit-btn:hover{background:var(--neon);box-shadow:0 0 16px rgba(0,245,196,0.3);}
+.auth-divider{text-align:center;margin:14px 0;position:relative;font-size:12px;color:var(--text3);}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border2);}
+.auth-divider::before{left:0;}.auth-divider::after{right:0;}
 
-.profile-hero { padding:28px 16px 20px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:center; }
-.profile-avatar-big { width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin-bottom:14px;border:3px solid var(--bg3);box-shadow:0 0 20px rgba(123,92,250,0.3); }
-.profile-username { font-size:20px;font-weight:900;margin-bottom:6px; }
-.profile-bio { font-size:13px;color:var(--text2);text-align:center;max-width:320px;line-height:1.6;margin-bottom:14px; }
-.profile-stats { display:flex;gap:28px;margin-bottom:16px; }
-.profile-stat { text-align:center; }
-.profile-stat-num { font-family:'DotGothic16',monospace;font-size:22px;color:var(--neon);display:block;text-shadow:0 0 10px rgba(0,245,196,0.4); }
-.profile-stat-label { font-size:11px;color:var(--text3); }
-.profile-edit-btn { background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:7px 20px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s; }
-.profile-edit-btn:hover { border-color:var(--neon2);color:var(--neon2); }
-.profile-edit-area { display:none;width:100%;max-width:340px;margin-top:14px; }
-.profile-edit-area.open { display:block; }
-.profile-edit-input { width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);font-family:'Zen Kaku Gothic New',sans-serif;outline:none;margin-bottom:8px;transition:border-color 0.2s; }
-.profile-edit-input:focus { border-color:var(--neon2); }
-.profile-save-btn { width:100%;background:var(--neon2);color:white;border:none;padding:9px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s; }
-.profile-save-btn:hover { background:var(--neon);color:var(--bg); }
-.guest-profile-wrap { padding:48px 20px;text-align:center; }
-.guest-profile-icon { font-size:52px;margin-bottom:16px; }
-.guest-profile-title { font-size:18px;font-weight:700;margin-bottom:8px; }
-.guest-profile-desc { font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px; }
-.guest-signup-btn { display:block;width:100%;max-width:280px;margin:0 auto 12px;background:var(--text);color:var(--bg);border:none;padding:12px 32px;border-radius:24px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s; }
-.guest-signup-btn:hover { background:var(--neon);box-shadow:0 0 16px rgba(0,245,196,0.3); }
-.profile-tabs { display:flex;border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:40;background:var(--bg); }
-.profile-tab { flex:1;padding:13px 0;text-align:center;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;transition:color 0.2s;position:relative;font-family:'Zen Kaku Gothic New',sans-serif; }
-.profile-tab.active { color:var(--text); }
-.profile-tab.active::after { content:'';position:absolute;bottom:-1px;left:20%;right:20%;height:2px;background:var(--neon3);border-radius:2px;box-shadow:0 0 8px var(--neon3); }
-.nav-user-badge { display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:4px 12px 4px 6px;cursor:pointer;transition:all 0.2s;font-size:13px; }
-.nav-user-badge:hover { border-color:var(--neon2); }
-.nav-user-avatar { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700; }
+/* PROFILE PAGE */
+.profile-hero{padding:28px 16px 20px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;align-items:center;}
+.profile-avatar-wrap{position:relative;margin-bottom:14px;cursor:pointer;}
+.profile-avatar-big{width:82px;height:82px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;border:3px solid var(--bg3);box-shadow:0 0 24px rgba(123,92,250,0.35);overflow:hidden;}
+.profile-avatar-big img{width:100%;height:100%;object-fit:cover;}
+.avatar-edit-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;font-size:18px;}
+.profile-avatar-wrap:hover .avatar-edit-overlay{display:flex;}
+.avatar-upload-input{display:none;}
+.profile-username{font-size:20px;font-weight:900;margin-bottom:4px;}
+.profile-handle{font-size:13px;color:var(--text3);margin-bottom:12px;}
+.profile-stats{display:flex;gap:32px;margin-bottom:16px;}
+.profile-stat{text-align:center;}
+.profile-stat-num{font-family:'DotGothic16',monospace;font-size:22px;color:var(--neon);display:block;text-shadow:0 0 10px rgba(0,245,196,0.4);}
+.profile-stat-label{font-size:11px;color:var(--text3);}
+.profile-edit-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:7px 22px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;}
+.profile-edit-btn:hover{border-color:var(--neon2);color:var(--neon2);}
+
+/* PROFILE EDIT */
+.profile-edit-sheet{display:none;width:100%;max-width:360px;margin-top:16px;}
+.profile-edit-sheet.open{display:block;}
+.profile-edit-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);font-family:'Zen Kaku Gothic New',sans-serif;outline:none;margin-bottom:8px;transition:border-color 0.2s;}
+.profile-edit-input:focus{border-color:var(--neon2);}
+.profile-save-btn{width:100%;background:var(--neon2);color:white;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;}
+.profile-save-btn:hover{background:var(--neon);color:var(--bg);}
+
+/* FAVORITE DRAMAS */
+.fav-dramas-section{padding:14px 16px;border-bottom:1px solid var(--border);}
+.fav-dramas-title{font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+.fav-dramas-list{display:flex;flex-wrap:wrap;gap:6px;}
+.fav-drama-chip{background:rgba(123,92,250,0.1);border:1px solid rgba(123,92,250,0.3);color:var(--neon2);font-size:12px;padding:4px 12px;border-radius:20px;cursor:pointer;transition:all 0.15s;font-family:'Zen Kaku Gothic New',sans-serif;}
+.fav-drama-chip:hover{background:rgba(123,92,250,0.2);}
+.fav-drama-add{background:var(--bg3);border:1px dashed var(--border2);color:var(--text3);font-size:12px;padding:4px 12px;border-radius:20px;cursor:pointer;transition:all 0.15s;font-family:'Zen Kaku Gothic New',sans-serif;}
+.fav-drama-add:hover{border-color:var(--neon2);color:var(--neon2);}
+.fav-drama-input-wrap{display:none;margin-top:8px;display:flex;gap:6px;align-items:center;}
+.fav-drama-input-wrap.open{display:flex;}
+.fav-drama-text-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--text);font-family:'Zen Kaku Gothic New',sans-serif;outline:none;transition:border-color 0.2s;}
+.fav-drama-text-input:focus{border-color:var(--neon2);}
+.fav-drama-submit{background:var(--neon2);color:white;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;white-space:nowrap;}
+
+/* GUEST PROFILE */
+.guest-profile-wrap{padding:56px 20px;text-align:center;}
+.guest-profile-icon{font-size:56px;margin-bottom:16px;}
+.guest-profile-title{font-size:20px;font-weight:900;margin-bottom:10px;}
+.guest-profile-desc{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:28px;}
+.guest-action-btn{display:block;width:100%;max-width:280px;margin:0 auto 10px;padding:13px;border-radius:24px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;border:none;}
+.guest-action-btn.primary{background:var(--text);color:var(--bg);}
+.guest-action-btn.primary:hover{background:var(--neon);box-shadow:0 0 16px rgba(0,245,196,0.3);}
+.guest-action-btn.secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);}
+.guest-action-btn.secondary:hover{border-color:var(--neon2);color:var(--neon2);}
+
+/* PROFILE TABS */
+.profile-tabs{display:flex;border-bottom:1px solid var(--border);position:sticky;top:52px;z-index:40;background:var(--bg);}
+.profile-tab{flex:1;padding:13px 0;text-align:center;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;transition:color 0.2s;position:relative;font-family:'Zen Kaku Gothic New',sans-serif;}
+.profile-tab.active{color:var(--text);}
+.profile-tab.active::after{content:'';position:absolute;bottom:-1px;left:20%;right:20%;height:2px;background:var(--neon3);border-radius:2px;box-shadow:0 0 8px var(--neon3);}
+
+/* NAV USER BADGE */
+.nav-user-badge{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:4px 13px 4px 5px;cursor:pointer;transition:all 0.2s;font-size:13px;}
+.nav-user-badge:hover{border-color:var(--neon2);}
+.nav-user-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;overflow:hidden;flex-shrink:0;}
+.nav-user-avatar img{width:100%;height:100%;object-fit:cover;}
+
+/* GUEST BADGE */
+.nav-btn-small{background:none;border:1px solid var(--border2);color:var(--text2);padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;}
+.nav-btn-small:hover{border-color:var(--neon2);color:var(--neon2);}
+.nav-btn-small.accent{background:var(--neon2);color:white;border-color:var(--neon2);margin-left:4px;}
+.nav-btn-small.accent:hover{background:var(--neon);border-color:var(--neon);}
+
+/* LOCK OVERLAY for guests trying to post */
+.guest-lock-notice{background:rgba(123,92,250,0.07);border:1px solid rgba(123,92,250,0.2);border-radius:10px;padding:14px 16px;margin:12px 16px;display:none;text-align:center;}
+.guest-lock-notice.show{display:block;}
+.guest-lock-notice p{font-size:13px;color:var(--text2);margin-bottom:10px;}
+.guest-lock-notice button{background:var(--neon2);color:white;border:none;padding:8px 24px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1329,421 +1394,416 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const NG = ['死ね','ブス','キモい','うざい','消えろ','デブ','バカ','アホ','クソ','ゴミ','氏ね','殺す','クズ','きもい','不細工','キモ'];
 const COLORS = ['linear-gradient(135deg,#00f5c4,#0077ff)','linear-gradient(135deg,#fa5c8a,#7b5cfa)','linear-gradient(135deg,#f5c842,#fa5c8a)','linear-gradient(135deg,#7b5cfa,#00f5c4)'];
 const DRAMAS = {
-  '不適切にもほどがある！': { emoji:'📺', genre:['コメディ','タイムスリップ','ヒューマン'], channel:'TBS', day:'金曜', time:'22:00〜22:54', episodes:10, year:2024, streaming:[{name:'TBSドラマ公式',icon:'📡'},{name:'Paravi',icon:'🎬'},{name:'Amazon Prime',icon:'📦'},{name:'Netflix',icon:'🎥'}], desc:'昭和のおじさんが令和にタイムスリップ。コンプライアンスに縛られた現代社会を風刺するコメディドラマ。' },
-  '光る君へ': { emoji:'📜', genre:['大河','歴史','ラブストーリー'], channel:'NHK', day:'日曜', time:'20:00〜20:45', episodes:48, year:2024, streaming:[{name:'NHKオンデマンド',icon:'📡'},{name:'U-NEXT',icon:'🎬'}], desc:'紫式部（まひろ）の生涯と平安貴族の世界を描く大河ドラマ。' },
-  'おむすび': { emoji:'🍙', genre:['朝ドラ','ヒューマン','成長'], channel:'NHK', day:'月〜土曜', time:'08:00〜08:15', episodes:120, year:2024, streaming:[{name:'NHKオンデマンド',icon:'📡'},{name:'TVer',icon:'📱'}], desc:'栄養士を目指す少女の成長を描く連続テレビ小説。' },
+  '不適切にもほどがある！':{emoji:'📺',genre:['コメディ','タイムスリップ','ヒューマン'],channel:'TBS',day:'金曜',time:'22:00〜22:54',episodes:10,year:2024,streaming:[{name:'TBSドラマ公式',icon:'📡'},{name:'Paravi',icon:'🎬'},{name:'Amazon Prime',icon:'📦'},{name:'Netflix',icon:'🎥'}],desc:'昭和のおじさんが令和にタイムスリップ。コンプライアンスに縛られた現代社会を風刺するコメディドラマ。'},
+  '光る君へ':{emoji:'📜',genre:['大河','歴史','ラブストーリー'],channel:'NHK',day:'日曜',time:'20:00〜20:45',episodes:48,year:2024,streaming:[{name:'NHKオンデマンド',icon:'📡'},{name:'U-NEXT',icon:'🎬'}],desc:'紫式部（まひろ）の生涯と平安貴族の世界を描く大河ドラマ。'},
+  'おむすび':{emoji:'🍙',genre:['朝ドラ','ヒューマン','成長'],channel:'NHK',day:'月〜土曜',time:'08:00〜08:15',episodes:120,year:2024,streaming:[{name:'NHKオンデマンド',icon:'📡'},{name:'TVer',icon:'📱'}],desc:'栄養士を目指す少女の成長を描く連続テレビ小説。'},
 };
 
 // ════ 状態 ════
-let posts = [];
-let currentUser = null;
-let currentProfile = null;
-let myLikes = new Set();
-let feedFilter = 'all';
-let currentPage = 'feed';
-let currentDrama = null;
-let currentRating = 0;
-let hasSpoiler = false;
-let selectedEpisode = '全体';
-let dramaEpFilter = 'all';
-let replyTargetId = null;
-let reportTarget = null;
-let profileTabMode = 'posts';
+let posts=[], currentUser=null, currentProfile=null, myLikes=new Set();
+let feedFilter='all', currentPage='feed', currentDrama=null;
+let currentRating=0, hasSpoiler=false, selectedEpisode='全体';
+let dramaEpFilter='all', replyTargetId=null, reportTarget=null;
+let profileTab='posts';
 
-// ════ ユーティリティ ════
-function avatarColor(name) { let h=0; for(let c of name) h+=c.charCodeAt(0); return COLORS[h%COLORS.length]; }
-function timeAgo(ts) {
-  const d = (Date.now()-new Date(ts))/1000;
-  if(d<60) return 'たった今'; if(d<3600) return `${Math.floor(d/60)}分前`;
-  if(d<86400) return `${Math.floor(d/3600)}時間前`; return `${Math.floor(d/86400)}日前`;
-}
-function checkNG(text) { return NG.filter(w=>text.includes(w)); }
+function avatarColor(n){let h=0;for(let c of n)h+=c.charCodeAt(0);return COLORS[h%COLORS.length];}
+function timeAgo(ts){const d=(Date.now()-new Date(ts))/1000;if(d<60)return 'たった今';if(d<3600)return `${Math.floor(d/60)}分前`;if(d<86400)return `${Math.floor(d/3600)}時間前`;return `${Math.floor(d/86400)}日前`;}
+function checkNG(t){return NG.filter(w=>t.includes(w));}
 
 // ════ AUTH ════
-async function initAuth() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) await setUser(session.user);
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (session) await setUser(session.user);
-    else { currentUser = null; currentProfile = null; myLikes = new Set(); }
+async function initAuth(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session) await onSignIn(session.user);
+  sb.auth.onAuthStateChange(async(_,session)=>{
+    if(session){await onSignIn(session.user);}
+    else{currentUser=null;currentProfile=null;myLikes=new Set();}
     updateNavUI();
-    if (currentPage === 'profile') renderProfilePage();
+    updateComposerLock();
+    if(currentPage==='profile') renderProfilePage();
   });
 }
 
-async function setUser(user) {
-  currentUser = user;
-  const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
-  currentProfile = data;
-  const { data: likesData } = await sb.from('likes').select('post_id').eq('user_id', user.id);
-  myLikes = new Set((likesData||[]).map(l => l.post_id));
+async function onSignIn(user){
+  currentUser=user;
+  const {data}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  currentProfile=data;
+  const {data:lk}=await sb.from('likes').select('post_id').eq('user_id',user.id);
+  myLikes=new Set((lk||[]).map(l=>l.post_id));
 }
 
-function updateNavUI() {
-  const right = document.getElementById('nav-right-area');
-  if (!right) return;
-  if (currentUser && currentProfile) {
-    right.innerHTML = `
-      <div class="nav-user-badge" onclick="switchPage('profile')">
-        <div class="nav-user-avatar" style="background:${currentProfile.avatar_color}">${currentProfile.avatar_char}</div>
-        <span>${currentProfile.username}</span>
-      </div>`;
-  } else {
-    right.innerHTML = `
-      <button class="btn-ghost" onclick="openAuthModal('login')" style="background:none;border:1px solid var(--border2);color:var(--text2);padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;">ログイン</button>
-      <button class="btn-primary" onclick="openAuthModal('signup')" style="background:var(--neon2);color:white;border:none;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Zen Kaku Gothic New',sans-serif;transition:all 0.2s;">登録</button>`;
-  }
+// ── OAuth (Google / X) ──
+async function doOAuth(provider){
+  const redirectTo = window.location.href;
+  const {error}=await sb.auth.signInWithOAuth({provider, options:{redirectTo}});
+  if(error) showToast('ログインに失敗しました', 'warn');
 }
 
-// ── AUTH MODAL ──
-function openAuthModal(tab='login') {
-  switchAuthTab(tab);
-  document.getElementById('auth-modal').classList.add('open');
-}
-function closeAuthModal() { document.getElementById('auth-modal').classList.remove('open'); }
-function switchAuthTab(tab) {
-  document.getElementById('auth-login-form').style.display = tab==='login'?'block':'none';
-  document.getElementById('auth-signup-form').style.display = tab==='signup'?'block':'none';
-  document.getElementById('tab-login').classList.toggle('active', tab==='login');
-  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
-}
-
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass  = document.getElementById('login-password').value;
-  const errEl = document.getElementById('login-error');
-  errEl.textContent = '';
-  if (!email||!pass) { errEl.textContent='メールとパスワードを入力してください'; return; }
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) { errEl.textContent = 'メールアドレスまたはパスワードが間違っています'; return; }
+// ── メール認証 ──
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  const err=document.getElementById('login-error');
+  err.textContent='';
+  if(!email||!pass){err.textContent='入力してください';return;}
+  const {error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){err.textContent='メールまたはパスワードが間違っています';return;}
   closeAuthModal();
-  showToast('✅ ログインしました！', 'neon');
+  showToast('✅ ログインしました！','neon');
   await loadPosts();
 }
 
-async function doSignup() {
-  const name  = document.getElementById('signup-name').value.trim();
-  const email = document.getElementById('signup-email').value.trim();
-  const pass  = document.getElementById('signup-password').value;
-  const errEl = document.getElementById('signup-error');
-  errEl.textContent = '';
-  if (!name||!email||!pass) { errEl.textContent='すべての項目を入力してください'; return; }
-  if (pass.length < 6) { errEl.textContent='パスワードは6文字以上にしてください'; return; }
-  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { username: name } } });
-  if (error) { errEl.textContent = error.message; return; }
+async function doSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-password').value;
+  const err=document.getElementById('signup-error');
+  err.textContent='';
+  if(!name||!email||!pass){err.textContent='すべて入力してください';return;}
+  if(pass.length<6){err.textContent='パスワードは6文字以上';return;}
+  const {error}=await sb.auth.signUp({email,password:pass,options:{data:{username:name}}});
+  if(error){err.textContent=error.message;return;}
   closeAuthModal();
-  showToast('🎉 登録完了！メールを確認してください', 'neon');
+  showToast('🎉 登録完了！確認メールを送りました','neon');
 }
 
-async function doLogout() {
+async function doLogout(){
   await sb.auth.signOut();
-  currentUser = null; currentProfile = null; myLikes = new Set();
-  updateNavUI();
+  currentUser=null;currentProfile=null;myLikes=new Set();
+  updateNavUI();updateComposerLock();
   switchPage('feed');
   showToast('ログアウトしました');
 }
 
-// ════ PROFILE PAGE ════
-async function renderProfilePage() {
-  const el = document.getElementById('profile-content');
-  const navRight = document.getElementById('profile-page-nav-right');
+function openAuthModal(tab='login'){
+  switchAuthTab(tab);
+  document.getElementById('auth-modal').classList.add('open');
+}
+function closeAuthModal(){document.getElementById('auth-modal').classList.remove('open');}
+function switchAuthTab(tab){
+  document.getElementById('auth-login-form').style.display=tab==='login'?'block':'none';
+  document.getElementById('auth-signup-form').style.display=tab==='signup'?'block':'none';
+  document.getElementById('tab-login').classList.toggle('active',tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active',tab==='signup');
+}
 
-  if (!currentUser || !currentProfile) {
-    if (navRight) navRight.innerHTML = '';
-    el.innerHTML = `
+// ── NAV UI ──
+function updateNavUI(){
+  const el=document.getElementById('nav-right-area');
+  if(!el) return;
+  if(currentUser&&currentProfile){
+    const avatarHtml=currentProfile.avatar_url
+      ?`<img src="${currentProfile.avatar_url}" alt="">`
+      :currentProfile.avatar_char;
+    el.innerHTML=`<div class="nav-user-badge" onclick="switchPage('profile')"><div class="nav-user-avatar" style="background:${currentProfile.avatar_color}">${avatarHtml}</div><span>${currentProfile.username}</span></div>`;
+  } else {
+    el.innerHTML=`<button class="nav-btn-small" onclick="openAuthModal('login')">ログイン</button><button class="nav-btn-small accent" onclick="openAuthModal('signup')">登録</button>`;
+  }
+}
+
+// ── コンポーザーのロック制御（ゲストは投稿不可） ──
+function updateComposerLock(){
+  const composer=document.querySelector('.composer');
+  const notice=document.getElementById('guest-lock-notice');
+  if(!composer||!notice) return;
+  if(currentUser){
+    composer.style.opacity='1';composer.style.pointerEvents='auto';
+    notice.classList.remove('show');
+    // ログイン済みはニックネーム欄不要
+    const userField=document.getElementById('c-user');
+    if(userField) userField.style.display='none';
+  } else {
+    composer.style.opacity='0.35';composer.style.pointerEvents='none';
+    notice.classList.add('show');
+  }
+}
+
+// ════ PROFILE PAGE ════
+async function renderProfilePage(){
+  const el=document.getElementById('profile-content');
+  const topRight=document.getElementById('profile-page-topnav-right');
+
+  if(!currentUser||!currentProfile){
+    if(topRight) topRight.innerHTML='';
+    el.innerHTML=`
       <div class="guest-profile-wrap">
-        <div class="guest-profile-icon">👤</div>
+        <div class="guest-profile-icon">🎬</div>
         <div class="guest-profile-title">アカウントを作ろう</div>
-        <div class="guest-profile-desc">登録すると投稿履歴・いいね履歴が<br>プロフィールにまとまります。<br>もちろんゲストのまま閲覧も可能です。</div>
-        <button class="guest-signup-btn" onclick="openAuthModal('signup')">無料で登録する</button>
-        <button class="guest-signup-btn" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border2);" onclick="openAuthModal('login')">ログイン</button>
+        <div class="guest-profile-desc">登録すると投稿履歴・いいね履歴・<br>好きなドラマ一覧がプロフィールにまとまります。<br>もちろんゲストのまま閲覧は自由です。</div>
+        <button class="guest-action-btn primary" onclick="openAuthModal('signup')">無料で登録する</button>
+        <button class="guest-action-btn secondary" onclick="openAuthModal('login')">ログイン</button>
       </div>`;
     return;
   }
 
-  if (navRight) navRight.innerHTML = `<button class="nav-icon-btn" onclick="doLogout()" title="ログアウト">🚪</button>`;
+  if(topRight) topRight.innerHTML=`<button class="nav-icon-btn" onclick="doLogout()" title="ログアウト" style="font-size:18px">🚪</button>`;
 
-  // 投稿・いいね数取得
-  const myPosts = posts.filter(p => p.userId === currentUser.id);
-  const likedPosts = posts.filter(p => myLikes.has(p.id));
+  const myPosts=posts.filter(p=>p.userId===currentUser.id);
+  const likedPosts=posts.filter(p=>myLikes.has(p.id));
+  const favDramas=currentProfile.favorite_dramas||[];
 
-  el.innerHTML = `
+  const avatarHtml=currentProfile.avatar_url
+    ?`<img src="${currentProfile.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+    :`<span>${currentProfile.avatar_char}</span>`;
+
+  el.innerHTML=`
     <div class="profile-hero">
-      <div class="profile-avatar-big" style="background:${currentProfile.avatar_color}">${currentProfile.avatar_char}</div>
+      <div class="profile-avatar-wrap" onclick="document.getElementById('avatar-upload').click()">
+        <div class="profile-avatar-big" style="background:${currentProfile.avatar_color}">${avatarHtml}</div>
+        <div class="avatar-edit-overlay">✏️</div>
+        <input type="file" id="avatar-upload" class="avatar-upload-input" accept="image/*" onchange="uploadAvatar(this)">
+      </div>
       <div class="profile-username">${currentProfile.username}</div>
-      <div class="profile-bio">${currentProfile.bio || 'まだ自己紹介がありません'}</div>
       <div class="profile-stats">
         <div class="profile-stat"><span class="profile-stat-num">${myPosts.length}</span><span class="profile-stat-label">投稿</span></div>
         <div class="profile-stat"><span class="profile-stat-num">${likedPosts.length}</span><span class="profile-stat-label">いいね</span></div>
       </div>
       <button class="profile-edit-btn" onclick="toggleProfileEdit()">プロフィール編集</button>
-      <div class="profile-edit-area" id="profile-edit-area">
+      <div class="profile-edit-sheet" id="profile-edit-sheet">
         <input class="profile-edit-input" id="edit-username" placeholder="ニックネーム" value="${currentProfile.username}" />
-        <textarea class="profile-edit-input" id="edit-bio" placeholder="自己紹介（任意）" rows="3" style="resize:vertical">${currentProfile.bio||''}</textarea>
         <button class="profile-save-btn" onclick="saveProfile()">保存する</button>
       </div>
     </div>
+
+    <div class="fav-dramas-section">
+      <div class="fav-dramas-title">❤️ 好きなドラマ</div>
+      <div class="fav-dramas-list" id="fav-dramas-list">
+        ${favDramas.map(d=>`<div class="fav-drama-chip" onclick="openDrama('${d}')">${d} <span onclick="event.stopPropagation();removeFavDrama('${d}')" style="opacity:0.5;margin-left:3px;font-size:10px">✕</span></div>`).join('')}
+        <div class="fav-drama-add" onclick="toggleFavInput()">＋ 追加</div>
+      </div>
+      <div class="fav-drama-input-wrap" id="fav-input-wrap" style="display:none">
+        <input class="fav-drama-text-input" id="fav-drama-input" placeholder="ドラマタイトルを入力" />
+        <button class="fav-drama-submit" onclick="addFavDrama()">追加</button>
+      </div>
+    </div>
+
     <div class="profile-tabs">
-      <button class="profile-tab active" id="ptab-posts" onclick="setProfileTab('posts',this)">投稿</button>
-      <button class="profile-tab" id="ptab-likes" onclick="setProfileTab('likes',this)">いいね</button>
+      <button class="profile-tab active" onclick="setProfileTab('posts',this)">投稿</button>
+      <button class="profile-tab" onclick="setProfileTab('likes',this)">いいね</button>
     </div>
     <div id="profile-tab-content">
-      ${renderProfilePostList(myPosts)}
+      ${renderPostList(myPosts)}
     </div>`;
 }
 
-function renderProfilePostList(list) {
-  if (list.length === 0) return '<div style="padding:40px 16px;text-align:center;color:var(--text3)">まだ投稿がありません</div>';
-  return list.map((p,i) => renderPost(p,i)).join('');
+function renderPostList(list){
+  if(list.length===0) return '<div style="padding:40px 16px;text-align:center;color:var(--text3)">まだ投稿がありません</div>';
+  return list.map((p,i)=>renderPost(p,i)).join('');
 }
 
-function setProfileTab(tab, btn) {
-  profileTabMode = tab;
-  document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  const myPosts = posts.filter(p => p.userId === currentUser?.id);
-  const likedPosts = posts.filter(p => myLikes.has(p.id));
-  const list = tab === 'posts' ? myPosts : likedPosts;
-  document.getElementById('profile-tab-content').innerHTML = renderProfilePostList(list);
+function setProfileTab(tab,btn){
+  profileTab=tab;
+  document.querySelectorAll('.profile-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
+  const myPosts=posts.filter(p=>p.userId===currentUser?.id);
+  const likedPosts=posts.filter(p=>myLikes.has(p.id));
+  document.getElementById('profile-tab-content').innerHTML=renderPostList(tab==='posts'?myPosts:likedPosts);
 }
 
-function toggleProfileEdit() {
-  document.getElementById('profile-edit-area').classList.toggle('open');
+function toggleProfileEdit(){document.getElementById('profile-edit-sheet').classList.toggle('open');}
+
+async function saveProfile(){
+  const username=document.getElementById('edit-username').value.trim();
+  if(!username){showToast('ニックネームを入力してください','warn');return;}
+  const {error}=await sb.from('profiles').update({username,avatar_char:username[0]}).eq('id',currentUser.id);
+  if(error){showToast('保存に失敗しました','warn');return;}
+  currentProfile.username=username;currentProfile.avatar_char=username[0];
+  showToast('✅ 更新しました','neon');
+  updateNavUI();renderProfilePage();
 }
 
-async function saveProfile() {
-  const username = document.getElementById('edit-username').value.trim();
-  const bio = document.getElementById('edit-bio').value.trim();
-  if (!username) { showToast('ニックネームを入力してください', 'warn'); return; }
-  const { error } = await sb.from('profiles').update({
-    username, bio,
-    avatar_char: username[0]
-  }).eq('id', currentUser.id);
-  if (error) { showToast('保存に失敗しました', 'warn'); return; }
-  currentProfile.username = username;
-  currentProfile.bio = bio;
-  currentProfile.avatar_char = username[0];
-  showToast('✅ プロフィールを更新しました', 'neon');
-  updateNavUI();
+// アバター画像アップロード
+async function uploadAvatar(input){
+  const file=input.files[0];
+  if(!file) return;
+  if(file.size>2*1024*1024){showToast('画像は2MB以下にしてください','warn');return;}
+  showToast('アップロード中…');
+  const ext=file.name.split('.').pop();
+  const path=`${currentUser.id}/avatar.${ext}`;
+  const {error:upErr}=await sb.storage.from('avatars').upload(path,file,{upsert:true});
+  if(upErr){showToast('アップロードに失敗しました','warn');console.error(upErr);return;}
+  const {data}=sb.storage.from('avatars').getPublicUrl(path);
+  const url=data.publicUrl+'?t='+Date.now();
+  await sb.from('profiles').update({avatar_url:url}).eq('id',currentUser.id);
+  currentProfile.avatar_url=url;
+  showToast('✅ アバターを更新しました','neon');
+  updateNavUI();renderProfilePage();
+}
+
+// 好きなドラマ
+function toggleFavInput(){
+  const w=document.getElementById('fav-input-wrap');
+  w.style.display=w.style.display==='none'?'flex':'none';
+  if(w.style.display==='flex') document.getElementById('fav-drama-input').focus();
+}
+
+async function addFavDrama(){
+  const val=document.getElementById('fav-drama-input').value.trim();
+  if(!val) return;
+  const favs=[...(currentProfile.favorite_dramas||[])];
+  if(favs.includes(val)){showToast('すでに追加されています','warn');return;}
+  favs.push(val);
+  await sb.from('profiles').update({favorite_dramas:favs}).eq('id',currentUser.id);
+  currentProfile.favorite_dramas=favs;
+  document.getElementById('fav-drama-input').value='';
+  renderProfilePage();
+}
+
+async function removeFavDrama(drama){
+  const favs=(currentProfile.favorite_dramas||[]).filter(d=>d!==drama);
+  await sb.from('profiles').update({favorite_dramas:favs}).eq('id',currentUser.id);
+  currentProfile.favorite_dramas=favs;
   renderProfilePage();
 }
 
 // ════ LOAD POSTS ════
-async function loadPosts() {
+async function loadPosts(){
   showLoadingIndicator(true);
-  const { data, error } = await sb.from('posts').select('*, replies(*)').order('created_at', { ascending: false });
-  if (error) { showToast('データ読み込みエラー', 'warn'); showLoadingIndicator(false); return; }
-  posts = (data||[]).map(p => ({
-    id: p.id,
-    userId: p.user_id,
-    user: p.user_name,
-    avatar: p.avatar,
-    avatarColor: p.avatar_color,
-    drama: p.drama,
-    episode: p.episode,
-    rating: p.rating,
-    body: p.body,
-    spoiler: p.spoiler,
-    likes: p.likes,
-    liked: myLikes.has(p.id),
-    frozen: p.frozen,
-    time: timeAgo(p.created_at),
-    replies: (p.replies||[]).map(r => ({
-      id:r.id, user:r.user_name, avatar:r.avatar, avatarColor:r.avatar_color,
-      body:r.body, likes:r.likes, liked:false, time:timeAgo(r.created_at),
-    })).sort((a,b)=>a.id-b.id),
+  const {data,error}=await sb.from('posts').select('*, replies(*)').order('created_at',{ascending:false});
+  if(error){showToast('読み込みエラー','warn');showLoadingIndicator(false);return;}
+  posts=(data||[]).map(p=>({
+    id:p.id,userId:p.user_id,user:p.user_name,avatar:p.avatar,avatarColor:p.avatar_color,
+    drama:p.drama,episode:p.episode,rating:p.rating,body:p.body,spoiler:p.spoiler,
+    likes:p.likes,liked:myLikes.has(p.id),frozen:p.frozen,time:timeAgo(p.created_at),
+    replies:(p.replies||[]).map(r=>({id:r.id,user:r.user_name,avatar:r.avatar,avatarColor:r.avatar_color,body:r.body,likes:r.likes,liked:false,time:timeAgo(r.created_at)})).sort((a,b)=>a.id-b.id),
   }));
   showLoadingIndicator(false);
   renderFeed();
-  if (currentDrama) renderDramaPage(currentDrama);
-  if (currentPage === 'profile') renderProfilePage();
+  if(currentDrama) renderDramaPage(currentDrama);
+  if(currentPage==='profile') renderProfilePage();
 }
 
-function showLoadingIndicator(on) {
-  let el = document.getElementById('feed-loading');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'feed-loading';
-    el.style.cssText = 'padding:40px;text-align:center;color:var(--text3);font-size:14px;';
-    el.textContent = '読み込み中…';
-    document.getElementById('feed').prepend(el);
-  }
-  el.style.display = on ? 'block' : 'none';
+function showLoadingIndicator(on){
+  let el=document.getElementById('feed-loading');
+  if(!el){el=document.createElement('div');el.id='feed-loading';el.style.cssText='padding:40px;text-align:center;color:var(--text3);font-size:14px;';el.textContent='読み込み中…';document.getElementById('feed').prepend(el);}
+  el.style.display=on?'block':'none';
 }
 
-// ════ SUBMIT POST ════
-async function submitPost() {
-  const drama = document.getElementById('c-drama').value.trim();
-  const body  = document.getElementById('c-body').value.trim();
-  let userName, avatarChar, avatarCol;
+// ════ SUBMIT POST（ログイン必須） ════
+async function submitPost(){
+  if(!currentUser){openAuthModal('signup');return;}
+  const drama=document.getElementById('c-drama').value.trim();
+  const body=document.getElementById('c-body').value.trim();
+  if(!drama||!body){showToast('ドラマタイトルと感想を入力してください','warn');return;}
+  if(checkNG(body).length){await handleViolation(currentProfile.username);return;}
 
-  if (currentUser && currentProfile) {
-    userName = currentProfile.username;
-    avatarChar = currentProfile.avatar_char;
-    avatarCol = currentProfile.avatar_color;
-  } else {
-    const guestName = document.getElementById('c-user').value.trim();
-    if (!guestName) { showToast('ゲストの場合はニックネームを入力してください', 'warn'); return; }
-    userName = guestName; avatarChar = guestName[0]; avatarCol = avatarColor(guestName);
-  }
-  if (!drama || !body) { showToast('ドラマタイトルと感想を入力してください', 'warn'); return; }
-
-  if (checkNG(body).length) { await handleViolation(userName); return; }
-
-  const { error } = await sb.from('posts').insert({
-    user_id: currentUser?.id || null,
-    user_name: userName, avatar: avatarChar, avatar_color: avatarCol,
-    drama, episode: selectedEpisode||'全体',
-    rating: currentRating||3, body, spoiler: hasSpoiler,
+  const {error}=await sb.from('posts').insert({
+    user_id:currentUser.id,user_name:currentProfile.username,
+    avatar:currentProfile.avatar_char,avatar_color:currentProfile.avatar_color,
+    drama,episode:selectedEpisode||'全体',rating:currentRating||3,body,spoiler:hasSpoiler,
   });
-  if (error) { showToast('投稿に失敗しました', 'warn'); return; }
+  if(error){showToast('投稿に失敗しました','warn');return;}
 
-  // reset form
-  document.getElementById('c-drama').value = '';
-  document.getElementById('c-body').value = '';
-  if (!currentUser) document.getElementById('c-user').value = '';
-  selectedEpisode='全体'; currentRating=0; hasSpoiler=false;
+  document.getElementById('c-drama').value='';
+  document.getElementById('c-body').value='';
+  selectedEpisode='全体';currentRating=0;hasSpoiler=false;
   updateStars();
   document.getElementById('c-spoiler').classList.remove('on');
   document.getElementById('mod-warn').classList.remove('show');
   document.querySelectorAll('.ep-dropdown-item').forEach(c=>c.classList.remove('selected'));
-  const allItem = document.querySelector('.ep-dropdown-item.all');
-  if (allItem) allItem.classList.add('selected');
-  const val = document.getElementById('ep-selected-val');
-  if (val) { val.textContent='🎬 話数を選ぶ'; val.classList.add('default'); }
-
-  showToast('✨ 投稿しました！', 'neon');
+  const allItem=document.querySelector('.ep-dropdown-item.all');
+  if(allItem) allItem.classList.add('selected');
+  const val=document.getElementById('ep-selected-val');
+  if(val){val.textContent='🎬 話数を選ぶ';val.classList.add('default');}
+  showToast('✨ 投稿しました！','neon');
   await loadPosts();
 }
 
-// ════ LIKE ════
-async function toggleLike(id) {
-  const p = posts.find(p=>p.id===id);
-  if (!p||p.frozen) return;
-
-  if (currentUser) {
-    // ログイン済み：DBに保存
-    if (myLikes.has(id)) {
-      await sb.from('likes').delete().eq('user_id', currentUser.id).eq('post_id', id);
-      myLikes.delete(id);
-      await sb.from('posts').update({ likes: p.likes-1 }).eq('id', id);
-      p.likes--; p.liked = false;
-    } else {
-      await sb.from('likes').insert({ user_id: currentUser.id, post_id: id });
-      myLikes.add(id);
-      await sb.from('posts').update({ likes: p.likes+1 }).eq('id', id);
-      p.likes++; p.liked = true;
-    }
+// ════ LIKE（ログイン必須） ════
+async function toggleLike(id){
+  if(!currentUser){openAuthModal('login');showToast('いいねするにはログインが必要です');return;}
+  const p=posts.find(p=>p.id===id);
+  if(!p||p.frozen) return;
+  if(myLikes.has(id)){
+    await sb.from('likes').delete().eq('user_id',currentUser.id).eq('post_id',id);
+    myLikes.delete(id);
+    await sb.from('posts').update({likes:p.likes-1}).eq('id',id);
+    p.likes--;p.liked=false;
   } else {
-    // ゲスト：セッションのみ
-    p.liked = !p.liked;
-    const newLikes = p.liked ? p.likes+1 : p.likes-1;
-    await sb.from('posts').update({ likes: newLikes }).eq('id', id);
-    p.likes = newLikes;
+    await sb.from('likes').insert({user_id:currentUser.id,post_id:id});
+    myLikes.add(id);
+    await sb.from('posts').update({likes:p.likes+1}).eq('id',id);
+    p.likes++;p.liked=true;
   }
   renderFeed();
-  if (currentDrama) renderDramaPage(currentDrama);
+  if(currentDrama) renderDramaPage(currentDrama);
 }
 
-// ════ REPLY ════
-async function submitReply() {
-  const text = document.getElementById('reply-modal-text').value.trim();
-  let name, avatarChar, avatarCol;
-  if (currentUser && currentProfile) {
-    name = currentProfile.username; avatarChar = currentProfile.avatar_char; avatarCol = currentProfile.avatar_color;
-  } else {
-    name = document.getElementById('reply-modal-name').value.trim();
-    if (!name) { showToast('ニックネームを入力してください', 'warn'); return; }
-    avatarChar = name[0]; avatarCol = avatarColor(name);
-  }
-  if (!text) { showToast('返信内容を入力してください', 'warn'); return; }
-  if (checkNG(text).length) { await handleViolation(name, true); return; }
-
-  const { error } = await sb.from('replies').insert({
-    post_id: replyTargetId, user_id: currentUser?.id||null,
-    user_name: name, avatar: avatarChar, avatar_color: avatarCol, body: text,
+// ════ REPLY（ログイン必須） ════
+async function submitReply(){
+  if(!currentUser){openAuthModal('login');return;}
+  const text=document.getElementById('reply-modal-text').value.trim();
+  if(!text){showToast('返信内容を入力してください','warn');return;}
+  if(checkNG(text).length){await handleViolation(currentProfile.username,true);return;}
+  const {error}=await sb.from('replies').insert({
+    post_id:replyTargetId,user_id:currentUser.id,
+    user_name:currentProfile.username,avatar:currentProfile.avatar_char,
+    avatar_color:currentProfile.avatar_color,body:text,
   });
-  if (error) { showToast('返信に失敗しました', 'warn'); return; }
-  document.getElementById('reply-modal-text').value = '';
-  document.getElementById('reply-modal-warn').textContent = '';
-  showToast('💬 返信しました！', 'neon');
+  if(error){showToast('返信に失敗しました','warn');return;}
+  document.getElementById('reply-modal-text').value='';
+  document.getElementById('reply-modal-warn').textContent='';
+  showToast('💬 返信しました！','neon');
   await loadPosts();
-  const p = posts.find(x=>x.id===replyTargetId);
-  if (p) renderModalReplies(p);
+  const p=posts.find(x=>x.id===replyTargetId);
+  if(p) renderModalReplies(p);
 }
 
-async function toggleReplyLike(postId, replyId) {
-  const p = posts.find(x=>x.id===postId);
-  if (!p) return;
-  const r = (p.replies||[]).find(x=>x.id===replyId);
-  if (!r) return;
-  r.liked = !r.liked;
-  const newLikes = r.liked ? r.likes+1 : r.likes-1;
-  await sb.from('replies').update({ likes: newLikes }).eq('id', replyId);
-  r.likes = newLikes;
+async function toggleReplyLike(postId,replyId){
+  const p=posts.find(x=>x.id===postId);if(!p) return;
+  const r=(p.replies||[]).find(x=>x.id===replyId);if(!r) return;
+  r.liked=!r.liked;
+  const newLikes=r.liked?r.likes+1:r.likes-1;
+  await sb.from('replies').update({likes:newLikes}).eq('id',replyId);
+  r.likes=newLikes;
   renderFeed();
-  if (currentDrama) renderDramaPage(currentDrama);
-  if (replyTargetId===postId) renderModalReplies(p);
+  if(currentDrama) renderDramaPage(currentDrama);
+  if(replyTargetId===postId) renderModalReplies(p);
 }
 
 // ════ VIOLATION / REPORT ════
-async function handleViolation(userName) {
-  const { data: existing } = await sb.from('violations').select('*').eq('user_name', userName).single();
-  if (existing) {
-    const newCount = existing.count+1;
-    const shouldFreeze = newCount >= 2;
-    await sb.from('violations').update({ count: newCount, frozen: shouldFreeze }).eq('user_name', userName);
-    if (shouldFreeze) {
-      await sb.from('posts').update({ frozen: true }).eq('user_name', userName);
-      showToast(`🔒 ${userName} のアカウントを凍結しました`, 'warn');
-    } else {
-      showToast(`⚠️ 警告 ${newCount}/2 — あと${2-newCount}回で凍結`, 'warn');
-    }
+async function handleViolation(userName){
+  const {data:ex}=await sb.from('violations').select('*').eq('user_name',userName).single();
+  if(ex){
+    const n=ex.count+1;const freeze=n>=2;
+    await sb.from('violations').update({count:n,frozen:freeze}).eq('user_name',userName);
+    if(freeze){await sb.from('posts').update({frozen:true}).eq('user_name',userName);showToast(`🔒 ${userName} を凍結しました`,'warn');}
+    else showToast(`⚠️ 警告 ${n}/2 — あと${2-n}回で凍結`,'warn');
   } else {
-    await sb.from('violations').insert({ user_name: userName, count:1, frozen:false });
-    showToast('⚠️ 警告 1/2 — あと1回で凍結', 'warn');
+    await sb.from('violations').insert({user_name:userName,count:1,frozen:false});
+    showToast('⚠️ 警告 1/2 — あと1回で凍結','warn');
   }
   await loadPosts();
 }
-
-function openReport(id) { reportTarget=id; document.getElementById('sheet-backdrop').classList.add('open'); }
-function closeSheet() { document.getElementById('sheet-backdrop').classList.remove('open'); }
-async function confirmReport() {
-  const p = posts.find(p=>p.id===reportTarget);
-  if (p) await handleViolation(p.user);
-  closeSheet();
-}
+function openReport(id){reportTarget=id;document.getElementById('sheet-backdrop').classList.add('open');}
+function closeSheet(){document.getElementById('sheet-backdrop').classList.remove('open');}
+async function confirmReport(){const p=posts.find(p=>p.id===reportTarget);if(p) await handleViolation(p.user);closeSheet();}
 
 // ════ RENDER ════
-function renderFeed() {
-  const el = document.getElementById('feed');
-  let list = posts;
-  if (feedFilter==='nospoiler') list = posts.filter(p=>!p.spoiler);
-  if (feedFilter==='spoiler') list = posts.filter(p=>p.spoiler);
-  if (list.length===0) { el.innerHTML='<div style="padding:60px 16px;text-align:center;color:var(--text3)">まだ投稿がありません<br>最初の感想を投稿しましょう！</div>'; return; }
-  el.innerHTML = list.map((p,i)=>renderPost(p,i)).join('');
+function renderFeed(){
+  const el=document.getElementById('feed');
+  let list=posts;
+  if(feedFilter==='nospoiler') list=posts.filter(p=>!p.spoiler);
+  if(feedFilter==='spoiler') list=posts.filter(p=>p.spoiler);
+  if(list.length===0){el.innerHTML='<div style="padding:60px 16px;text-align:center;color:var(--text3)">まだ投稿がありません</div>';return;}
+  el.innerHTML=list.map((p,i)=>renderPost(p,i)).join('');
 }
 
-function renderPost(p, i=0) {
+function renderPost(p,i=0){
   const stars=[1,2,3,4,5].map(s=>`<span class="p-star ${s<=p.rating?'on':''}">★</span>`).join('');
-  const isMyPost = currentUser && p.userId === currentUser.id;
-  const bodyHtml = p.frozen
-    ? '<span style="color:var(--text3)">[規約違反により非表示]</span>'
-    : p.spoiler
-      ? `<div class="p-text"><span class="spoiler-blur" onclick="this.classList.toggle('revealed')">${p.body}</span></div>`
-      : `<div class="p-text">${p.body}</div>`;
-  const replyCount = (p.replies||[]).length;
-  const likedNow = currentUser ? myLikes.has(p.id) : p.liked;
+  const isMyPost=currentUser&&p.userId===currentUser.id;
+  const bodyHtml=p.frozen?'<span style="color:var(--text3)">[規約違反により非表示]</span>':p.spoiler?`<div class="p-text"><span class="spoiler-blur" onclick="this.classList.toggle('revealed')">${p.body}</span></div>`:`<div class="p-text">${p.body}</div>`;
+  const replyCount=(p.replies||[]).length;
+  const likedNow=myLikes.has(p.id);
+  const avatarHtml=p.avatarUrl?`<img src="${p.avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:`${p.avatar}`;
   return `
   <div class="post-card ${p.frozen?'frozen':''}" style="animation-delay:${i*0.04}s">
     <div class="post-inner">
       <div class="post-avatar-col">
-        <div class="p-avatar" style="background:${p.avatarColor}">${p.avatar}</div>
+        <div class="p-avatar" style="background:${p.avatarColor}">${avatarHtml}</div>
         <div class="thread-line"></div>
       </div>
       <div class="post-body-col">
         <div class="post-head">
-          <span class="p-username">${p.user}${isMyPost?' <span style="font-size:10px;color:var(--neon2);background:rgba(123,92,250,0.15);padding:1px 6px;border-radius:10px;font-weight:500">自分</span>':''}${p.frozen?' 🔒':''}</span>
+          <span class="p-username">${p.user}${isMyPost?' <span style="font-size:10px;color:var(--neon2);background:rgba(123,92,250,0.15);padding:1px 6px;border-radius:10px">自分</span>':''}${p.frozen?' 🔒':''}</span>
           <span class="p-time">${p.time}</span>
         </div>
         <div class="p-drama-tag" onclick="openDrama('${p.drama}')">📺 ${p.drama} <span class="arrow">↗</span></div>
@@ -1752,12 +1812,8 @@ function renderPost(p, i=0) {
         ${p.spoiler?'<div class="spoiler-badge">⚠️ ネタバレあり — タップで表示</div>':''}
         ${bodyHtml}
         <div class="post-actions">
-          <button class="p-action ${likedNow?'liked':''}" onclick="toggleLike(${p.id})">
-            <span class="icon">${likedNow?'♥':'♡'}</span> ${p.likes}
-          </button>
-          <button class="p-action" onclick="openReplyModal(${p.id})">
-            <span class="icon">💬</span> ${replyCount>0?replyCount:'返信'}
-          </button>
+          <button class="p-action ${likedNow?'liked':''}" onclick="toggleLike(${p.id})"><span class="icon">${likedNow?'♥':'♡'}</span> ${p.likes}</button>
+          <button class="p-action" onclick="openReplyModal(${p.id})"><span class="icon">💬</span> ${replyCount>0?replyCount:'返信'}</button>
           <button class="p-action" onclick="openReport(${p.id})"><span class="icon">🚩</span></button>
         </div>
       </div>
@@ -1766,37 +1822,29 @@ function renderPost(p, i=0) {
   </div>`;
 }
 
-function renderInlineReplies(p) {
-  const replies=p.replies||[];
-  if(replies.length===0) return '';
-  const preview=replies[replies.length-1];
-  const moreCount=replies.length-1;
-  return `<div style="padding:0 16px 12px 68px;">
-    <div class="reply-item">
-      <div class="r-avatar" style="background:${preview.avatarColor||'linear-gradient(135deg,var(--neon2),var(--neon3))'}">${preview.avatar}</div>
-      <div class="r-body">
-        <div class="r-head"><span class="r-name">${preview.user}</span><span class="r-time">${preview.time}</span></div>
-        <div class="r-text">${preview.body}</div>
-        <div class="r-actions">
-          <button class="r-action ${preview.liked?'liked':''}" onclick="toggleReplyLike(${p.id},${preview.id})">${preview.liked?'♥':'♡'} ${preview.likes}</button>
-          <button class="r-action" onclick="openReplyModal(${p.id})">返信</button>
-        </div>
+function renderInlineReplies(p){
+  const replies=p.replies||[];if(replies.length===0) return '';
+  const preview=replies[replies.length-1];const moreCount=replies.length-1;
+  return `<div style="padding:0 16px 12px 68px;"><div class="reply-item">
+    <div class="r-avatar" style="background:${preview.avatarColor||'linear-gradient(135deg,var(--neon2),var(--neon3))'}">${preview.avatar}</div>
+    <div class="r-body">
+      <div class="r-head"><span class="r-name">${preview.user}</span><span class="r-time">${preview.time}</span></div>
+      <div class="r-text">${preview.body}</div>
+      <div class="r-actions">
+        <button class="r-action ${preview.liked?'liked':''}" onclick="toggleReplyLike(${p.id},${preview.id})">${preview.liked?'♥':'♡'} ${preview.likes}</button>
+        <button class="r-action" onclick="openReplyModal(${p.id})">返信</button>
       </div>
-    </div>
+    </div></div>
     ${moreCount>0?`<button class="show-replies-btn" onclick="openReplyModal(${p.id})">— 他${moreCount}件の返信を見る</button>`:''}
   </div>`;
 }
 
-function openReplyModal(postId) {
+function openReplyModal(postId){
   replyTargetId=postId;
-  const p=posts.find(x=>x.id===postId);
-  if(!p) return;
-  // ログイン済みの場合はニックネーム入力欄を非表示
-  const nameField = document.getElementById('reply-modal-name');
-  if (nameField) {
-    nameField.style.display = currentUser ? 'none' : 'block';
-    if (currentUser && currentProfile) nameField.value = currentProfile.username;
-  }
+  const p=posts.find(x=>x.id===postId);if(!p) return;
+  // ログイン必須チェック
+  const nameField=document.getElementById('reply-modal-name');
+  if(nameField) nameField.style.display='none';
   document.getElementById('reply-modal-orig').innerHTML=`
     <div style="display:flex;gap:10px;align-items:flex-start">
       <div class="r-avatar" style="background:${p.avatarColor};width:32px;height:32px;font-size:12px;">${p.avatar}</div>
@@ -1812,187 +1860,127 @@ function openReplyModal(postId) {
   setTimeout(()=>document.getElementById('reply-modal-text').focus(),300);
 }
 
-function renderModalReplies(p) {
+function renderModalReplies(p){
   const replies=p.replies||[];
   document.getElementById('modal-replies-list').innerHTML=replies.length===0
     ?'<div style="padding:20px 0;text-align:center;color:var(--text3);font-size:13px">まだ返信がありません</div>'
-    :replies.map(r=>`
-      <div class="modal-reply-item">
-        <div class="r-avatar" style="background:${r.avatarColor||'linear-gradient(135deg,var(--neon2),var(--neon3))'};width:32px;height:32px;font-size:12px">${r.avatar}</div>
-        <div class="r-body">
-          <div class="r-head"><span class="r-name">${r.user}</span><span class="r-time">${r.time}</span></div>
-          <div class="r-text">${r.body}</div>
-          <div class="r-actions">
-            <button class="r-action ${r.liked?'liked':''}" onclick="toggleReplyLike(${p.id},${r.id})">${r.liked?'♥':'♡'} ${r.likes}</button>
-            <button class="r-action" onclick="openReport(${p.id})">🚩</button>
-          </div>
-        </div>
-      </div>`).join('');
+    :replies.map(r=>`<div class="modal-reply-item"><div class="r-avatar" style="background:${r.avatarColor||'linear-gradient(135deg,var(--neon2),var(--neon3))'};width:32px;height:32px;font-size:12px">${r.avatar}</div><div class="r-body"><div class="r-head"><span class="r-name">${r.user}</span><span class="r-time">${r.time}</span></div><div class="r-text">${r.body}</div><div class="r-actions"><button class="r-action ${r.liked?'liked':''}" onclick="toggleReplyLike(${p.id},${r.id})">${r.liked?'♥':'♡'} ${r.likes}</button><button class="r-action" onclick="openReport(${p.id})">🚩</button></div></div></div>`).join('');
 }
 
-function closeReplyModal() { document.getElementById('reply-modal-backdrop').classList.remove('open'); replyTargetId=null; }
-function onReplyInput() {
-  const found=checkNG(document.getElementById('reply-modal-text').value);
-  document.getElementById('reply-modal-warn').textContent=found.length?`⚠️「${found[0]}」など不適切な表現が含まれています`:'';
-}
+function closeReplyModal(){document.getElementById('reply-modal-backdrop').classList.remove('open');replyTargetId=null;}
+function onReplyInput(){const f=checkNG(document.getElementById('reply-modal-text').value);document.getElementById('reply-modal-warn').textContent=f.length?`⚠️「${f[0]}」など不適切な表現が含まれています`:''}
 
 // ════ DRAMA PAGE ════
-function openDrama(name) { currentDrama=name; dramaEpFilter='all'; document.getElementById('drama-page-title').textContent=name; renderDramaPage(name); showPage('drama'); }
+function openDrama(n){currentDrama=n;dramaEpFilter='all';document.getElementById('drama-page-title').textContent=n;renderDramaPage(n);showPage('drama');}
 
-function renderDramaPage(name) {
+function renderDramaPage(name){
   const d=DRAMAS[name];
-  const dramaPosts=posts.filter(p=>p.drama===name);
-  const avgRating=dramaPosts.length?(dramaPosts.reduce((a,p)=>a+p.rating,0)/dramaPosts.length).toFixed(1):'-';
-  const dist=[5,4,3,2,1].map(s=>({star:s,count:dramaPosts.filter(p=>p.rating===s).length}));
-  const maxDist=Math.max(...dist.map(d=>d.count),1);
-  const streamingHtml=d?d.streaming.map(s=>`<div class="stream-badge"><span class="stream-icon">${s.icon}</span>${s.name}</div>`).join(''):'';
-  const infoHtml=d?`
-    <div class="drama-hero">
-      <div class="drama-title-row">
-        <div class="drama-thumb">${d.emoji}</div>
-        <div class="drama-info">
-          <div class="drama-main-title">${name}</div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px">${d.desc}</div>
-          <div class="drama-genre-tags">${d.genre.map(g=>`<span class="genre-chip">${g}</span>`).join('')}</div>
-        </div>
-      </div>
-      <div class="drama-rating-big">
-        <div class="rating-num">${avgRating}</div>
-        <div class="rating-right">
-          <div class="rating-stars-big">${[1,2,3,4,5].map(s=>`<span class="r-star ${parseFloat(avgRating)>=s?'on':''}">★</span>`).join('')}</div>
-          <div class="rating-count">${dramaPosts.length}件のレビュー</div>
-        </div>
-      </div>
-      <div class="drama-info-grid">
-        <div class="info-card"><div class="info-card-label">放送局</div><div class="info-card-val">${d.channel}</div></div>
-        <div class="info-card"><div class="info-card-label">放送時間</div><div class="info-card-val">${d.day}</div><div class="info-card-sub">${d.time}</div></div>
-        <div class="info-card"><div class="info-card-label">全話数</div><div class="info-card-val">${d.episodes}話</div></div>
-        <div class="info-card"><div class="info-card-label">放送年</div><div class="info-card-val">${d.year}</div></div>
-      </div>
-      <div style="font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">視聴方法</div>
-      <div class="streaming-row">${streamingHtml}</div>
-    </div>
-    <div class="drama-tabs">
-      <button class="drama-tab active" onclick="setDramaTab('reviews',this)">口コミ</button>
-      <button class="drama-tab" onclick="setDramaTab('stats',this)">統計</button>
-    </div>`
-  :`<div style="padding:24px 16px;color:var(--text2)">このドラマの詳細情報はまだ登録されていません</div>
-    <div class="drama-tabs"><button class="drama-tab active" onclick="setDramaTab('reviews',this)">口コミ</button></div>`;
-  const statsHtml=`<div id="drama-tab-stats" style="display:none"><div class="stat-bar-wrap"><div style="font-size:13px;color:var(--text2);margin-bottom:12px">評価の分布</div>${dist.map(d=>`<div class="stat-bar-row"><div class="stat-bar-label">★${d.star}</div><div class="stat-bar-track"><div class="stat-bar-fill" style="width:${Math.round(d.count/maxDist*100)}%"></div></div><div class="stat-bar-cnt">${d.count}</div></div>`).join('')}</div></div>`;
-  const reviewsHtml=`<div id="drama-tab-reviews">${buildEpFilterBar(name)}${dramaPosts.length===0?`<div style="padding:40px 16px;text-align:center;color:var(--text3)">まだ口コミがありません</div>`:dramaPosts.map((p,i)=>renderPost(p,i)).join('')}</div>`;
+  const dp=posts.filter(p=>p.drama===name);
+  const avg=dp.length?(dp.reduce((a,p)=>a+p.rating,0)/dp.length).toFixed(1):'-';
+  const dist=[5,4,3,2,1].map(s=>({star:s,count:dp.filter(p=>p.rating===s).length}));
+  const maxD=Math.max(...dist.map(d=>d.count),1);
+  const sHtml=d?d.streaming.map(s=>`<div class="stream-badge"><span class="stream-icon">${s.icon}</span>${s.name}</div>`).join(''):'';
+  const infoHtml=d?`<div class="drama-hero"><div class="drama-title-row"><div class="drama-thumb">${d.emoji}</div><div class="drama-info"><div class="drama-main-title">${name}</div><div style="font-size:13px;color:var(--text2);margin-top:4px">${d.desc}</div><div class="drama-genre-tags">${d.genre.map(g=>`<span class="genre-chip">${g}</span>`).join('')}</div></div></div><div class="drama-rating-big"><div class="rating-num">${avg}</div><div class="rating-right"><div class="rating-stars-big">${[1,2,3,4,5].map(s=>`<span class="r-star ${parseFloat(avg)>=s?'on':''}">★</span>`).join('')}</div><div class="rating-count">${dp.length}件のレビュー</div></div></div><div class="drama-info-grid"><div class="info-card"><div class="info-card-label">放送局</div><div class="info-card-val">${d.channel}</div></div><div class="info-card"><div class="info-card-label">放送時間</div><div class="info-card-val">${d.day}</div><div class="info-card-sub">${d.time}</div></div><div class="info-card"><div class="info-card-label">全話数</div><div class="info-card-val">${d.episodes}話</div></div><div class="info-card"><div class="info-card-label">放送年</div><div class="info-card-val">${d.year}</div></div></div><div style="font-size:12px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">視聴方法</div><div class="streaming-row">${sHtml}</div></div><div class="drama-tabs"><button class="drama-tab active" onclick="setDramaTab('reviews',this)">口コミ</button><button class="drama-tab" onclick="setDramaTab('stats',this)">統計</button></div>`:`<div style="padding:24px 16px;color:var(--text2)">詳細情報はまだ登録されていません</div><div class="drama-tabs"><button class="drama-tab active" onclick="setDramaTab('reviews',this)">口コミ</button></div>`;
+  const statsHtml=`<div id="drama-tab-stats" style="display:none"><div class="stat-bar-wrap"><div style="font-size:13px;color:var(--text2);margin-bottom:12px">評価の分布</div>${dist.map(d=>`<div class="stat-bar-row"><div class="stat-bar-label">★${d.star}</div><div class="stat-bar-track"><div class="stat-bar-fill" style="width:${Math.round(d.count/maxD*100)}%"></div></div><div class="stat-bar-cnt">${d.count}</div></div>`).join('')}</div></div>`;
+  const reviewsHtml=`<div id="drama-tab-reviews">${buildEpFilterBar(name)}${dp.length===0?`<div style="padding:40px 16px;text-align:center;color:var(--text3)">まだ口コミがありません</div>`:dp.map((p,i)=>renderPost(p,i)).join('')}</div>`;
   document.getElementById('drama-detail-content').innerHTML=infoHtml+reviewsHtml+statsHtml;
 }
 
-function setDramaTab(tab,btn) {
-  document.querySelectorAll('.drama-tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active');
-  document.getElementById('drama-tab-reviews').style.display=tab==='reviews'?'block':'none';
-  const s=document.getElementById('drama-tab-stats'); if(s) s.style.display=tab==='stats'?'block':'none';
-}
+function setDramaTab(tab,btn){document.querySelectorAll('.drama-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById('drama-tab-reviews').style.display=tab==='reviews'?'block':'none';const s=document.getElementById('drama-tab-stats');if(s)s.style.display=tab==='stats'?'block':'none';}
 
-function buildEpFilterBar(name) {
+function buildEpFilterBar(name){
   const dp=posts.filter(p=>p.drama===name);
   const eps=[...new Set(dp.map(p=>p.episode||'全体'))].sort((a,b)=>a==='全体'?-1:b==='全体'?1:parseInt(a)-parseInt(b));
   if(eps.length<=1) return '';
-  return `<div class="ep-filter-bar" id="ep-filter-bar"><div class="ep-filter-inner"><div class="ep-filter-chip all active" onclick="setEpFilter('all',this)">すべて</div>${eps.map(ep=>`<div class="ep-filter-chip ${ep==='全体'?'all':''}" onclick="setEpFilter('${ep}',this)">${ep}</div>`).join('')}</div></div>`;
+  return `<div class="ep-filter-bar"><div class="ep-filter-inner"><div class="ep-filter-chip all active" onclick="setEpFilter('all',this)">すべて</div>${eps.map(ep=>`<div class="ep-filter-chip ${ep==='全体'?'all':''}" onclick="setEpFilter('${ep}',this)">${ep}</div>`).join('')}</div></div>`;
 }
 
-function setEpFilter(ep,el) {
-  dramaEpFilter=ep;
-  document.querySelectorAll('.ep-filter-chip').forEach(c=>c.classList.remove('active')); el.classList.add('active');
-  const allPosts=posts.filter(p=>p.drama===currentDrama);
-  const filtered=ep==='all'?allPosts:allPosts.filter(p=>(p.episode||'全体')===ep);
-  const reviewsEl=document.getElementById('drama-tab-reviews');
-  if(reviewsEl){ const bar=reviewsEl.querySelector('.ep-filter-bar')?.outerHTML||''; reviewsEl.innerHTML=bar+(filtered.length===0?`<div style="padding:40px 16px;text-align:center;color:var(--text3)">「${ep}」の口コミはまだありません</div>`:filtered.map((p,i)=>renderPost(p,i)).join('')); }
+function setEpFilter(ep,el){
+  dramaEpFilter=ep;document.querySelectorAll('.ep-filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');
+  const allP=posts.filter(p=>p.drama===currentDrama);
+  const filtered=ep==='all'?allP:allP.filter(p=>(p.episode||'全体')===ep);
+  const rev=document.getElementById('drama-tab-reviews');
+  if(rev){const bar=rev.querySelector('.ep-filter-bar')?.outerHTML||'';rev.innerHTML=bar+(filtered.length===0?`<div style="padding:40px 16px;text-align:center;color:var(--text3)">「${ep}」の口コミはまだありません</div>`:filtered.map((p,i)=>renderPost(p,i)).join(''));}
 }
 
 // ════ EPISODE DROPDOWN ════
-function toggleEpDropdown() { document.getElementById('ep-dropdown-btn').classList.toggle('open'); document.getElementById('ep-dropdown-menu').classList.toggle('open'); }
-function selectEpisode(ep,el) {
-  selectedEpisode=ep;
-  document.querySelectorAll('.ep-dropdown-item').forEach(c=>c.classList.remove('selected')); el.classList.add('selected');
-  const val=document.getElementById('ep-selected-val');
-  val.textContent=ep==='全体'?'📺 全体（シリーズ全体）':`🎬 ${ep}`; val.classList.remove('default');
-  document.getElementById('ep-dropdown-btn').classList.remove('open'); document.getElementById('ep-dropdown-menu').classList.remove('open');
+function toggleEpDropdown(){document.getElementById('ep-dropdown-btn').classList.toggle('open');document.getElementById('ep-dropdown-menu').classList.toggle('open');}
+function selectEpisode(ep,el){
+  selectedEpisode=ep;document.querySelectorAll('.ep-dropdown-item').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');
+  const v=document.getElementById('ep-selected-val');v.textContent=ep==='全体'?'📺 全体（シリーズ全体）':`🎬 ${ep}`;v.classList.remove('default');
+  document.getElementById('ep-dropdown-btn').classList.remove('open');document.getElementById('ep-dropdown-menu').classList.remove('open');
 }
-document.addEventListener('click',e=>{ const w=document.getElementById('ep-field-wrap'); if(w&&!w.contains(e.target)){ document.getElementById('ep-dropdown-btn')?.classList.remove('open'); document.getElementById('ep-dropdown-menu')?.classList.remove('open'); } });
+document.addEventListener('click',e=>{const w=document.getElementById('ep-field-wrap');if(w&&!w.contains(e.target)){document.getElementById('ep-dropdown-btn')?.classList.remove('open');document.getElementById('ep-dropdown-menu')?.classList.remove('open');}});
 
 // ════ STARS ════
 document.querySelectorAll('.c-star').forEach(btn=>{
-  btn.addEventListener('click',()=>{ currentRating=parseInt(btn.dataset.v); updateStars(); });
-  btn.addEventListener('mouseenter',()=>{ const v=parseInt(btn.dataset.v); document.querySelectorAll('.c-star').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=v)); });
+  btn.addEventListener('click',()=>{currentRating=parseInt(btn.dataset.v);updateStars();});
+  btn.addEventListener('mouseenter',()=>{const v=parseInt(btn.dataset.v);document.querySelectorAll('.c-star').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=v));});
   btn.addEventListener('mouseleave',updateStars);
 });
-function updateStars() { document.querySelectorAll('.c-star').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=currentRating)); }
-
-// ════ SPOILER ════
-function toggleSpoiler() { hasSpoiler=!hasSpoiler; document.getElementById('c-spoiler').classList.toggle('on',hasSpoiler); }
+function updateStars(){document.querySelectorAll('.c-star').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=currentRating));}
+function toggleSpoiler(){hasSpoiler=!hasSpoiler;document.getElementById('c-spoiler').classList.toggle('on',hasSpoiler);}
 
 // ════ MOD WARNING ════
-function onBodyInput() {
-  const found=checkNG(document.getElementById('c-body').value);
-  const warn=document.getElementById('mod-warn'); const msg=document.getElementById('mod-msg');
-  if(found.length){ msg.textContent=`「${found[0]}」など不適切な表現が含まれています。`; warn.classList.add('show'); } else warn.classList.remove('show');
-}
+function onBodyInput(){const f=checkNG(document.getElementById('c-body').value);const w=document.getElementById('mod-warn');const m=document.getElementById('mod-msg');if(f.length){m.textContent=`「${f[0]}」など不適切な表現が含まれています。`;w.classList.add('show');}else w.classList.remove('show');}
 
 // ════ FILTER / SEARCH / NAV ════
-function setFeedTab(mode,btn) { feedFilter=mode; document.querySelectorAll('.feed-tab').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); renderFeed(); }
+function setFeedTab(mode,btn){feedFilter=mode;document.querySelectorAll('.feed-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderFeed();}
 
-function onSearch(q) {
-  const res=document.getElementById('search-results');
-  if(!q){ renderTrending(); return; }
+function onSearch(q){
+  const res=document.getElementById('search-results');if(!q){renderTrending();return;}
   const names=[...new Set(posts.map(p=>p.drama))].filter(n=>n.includes(q));
   res.innerHTML=`<div class="trending-section">${names.length===0?'<div style="color:var(--text3);text-align:center;padding:40px 0">見つかりませんでした</div>':names.map(n=>`<div class="trending-drama-item" onclick="openDrama('${n}')"><div class="td-info"><div class="td-name">${n}</div><div class="td-meta">${posts.filter(p=>p.drama===n).length}件の口コミ</div></div></div>`).join('')}</div>`;
 }
 
-function renderTrending() {
-  const counts={}; posts.forEach(p=>{counts[p.drama]=(counts[p.drama]||0)+1;});
+function renderTrending(){
+  const counts={};posts.forEach(p=>{counts[p.drama]=(counts[p.drama]||0)+1;});
   const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   document.getElementById('search-results').innerHTML=`<div class="trending-section"><div class="trending-label">🔥 トレンド</div>${sorted.map(([name,cnt],i)=>`<div class="trending-drama-item" onclick="openDrama('${name}')"><div class="td-rank ${i<3?'top':''}">${i+1}</div><div class="td-info"><div class="td-name">${name}</div><div class="td-meta">${cnt}件の口コミ</div></div><div class="td-count">${cnt}件</div></div>`).join('')}</div>`;
 }
 
-function switchPage(name) {
+function switchPage(name){
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
-  const bnavId = {feed:'home',search:'search',profile:'profile'}[name];
-  if (bnavId) document.getElementById('bnav-'+bnavId)?.classList.add('active');
+  const bid={feed:'home',search:'search',profile:'profile'}[name];
+  if(bid) document.getElementById('bnav-'+bid)?.classList.add('active');
   showPage(name);
   if(name==='search') renderTrending();
   if(name==='profile') renderProfilePage();
 }
-function showPage(name) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page-'+name).classList.add('active'); currentPage=name; window.scrollTo(0,0); }
-function goBack() { showPage('feed'); currentDrama=null; }
-function goHome() { switchPage('feed'); }
-
-function showToast(msg,type='') { const el=document.getElementById('toast'); el.textContent=msg; el.className='toast show '+type; setTimeout(()=>el.classList.remove('show'),2800); }
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');currentPage=name;window.scrollTo(0,0);}
+function goBack(){showPage('feed');currentDrama=null;}
+function goHome(){switchPage('feed');}
+function showToast(msg,type=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+type;setTimeout(()=>el.classList.remove('show'),2800);}
 
 // ════ REALTIME ════
-function subscribeRealtime() {
-  sb.channel('public:posts').on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>loadPosts()).on('postgres_changes',{event:'*',schema:'public',table:'replies'},()=>loadPosts()).subscribe();
+function subscribeRealtime(){
+  sb.channel('public').on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>loadPosts()).on('postgres_changes',{event:'*',schema:'public',table:'replies'},()=>loadPosts()).subscribe();
 }
 
-// ════ NAV RIGHT エリアを動的IDに ════
-document.addEventListener('DOMContentLoaded', () => {
-  const navRight = document.querySelector('.topnav .nav-right');
-  if (navRight) navRight.id = 'nav-right-area';
-});
-
-// ════ ゲスト用ニックネーム欄の表示制御 ════
-function updateComposerForAuth() {
-  const userField = document.getElementById('c-user');
-  if (!userField) return;
-  if (currentUser && currentProfile) {
-    userField.style.display = 'none';
-  } else {
-    userField.style.display = 'block';
-  }
+// ════ ゲストロック通知を投稿欄の前に挿入 ════
+function insertGuestLockNotice(){
+  const composer=document.querySelector('.composer');
+  if(!composer||document.getElementById('guest-lock-notice')) return;
+  const notice=document.createElement('div');
+  notice.id='guest-lock-notice';
+  notice.className='guest-lock-notice';
+  notice.innerHTML=`<p>投稿・いいね・返信にはアカウントが必要です</p><button onclick="openAuthModal('signup')">登録 / ログイン</button>`;
+  composer.parentNode.insertBefore(notice,composer);
 }
 
 // ════ INIT ════
-(async () => {
+(async()=>{
+  insertGuestLockNotice();
   await initAuth();
   updateNavUI();
-  updateComposerForAuth();
+  updateComposerLock();
   await loadPosts();
   subscribeRealtime();
+
+  // ナビゲーションの右エリアIDを設定
+  const navRight=document.querySelector('#page-feed .topnav .nav-right');
+  if(navRight) navRight.id='nav-right-area';
+  updateNavUI();
 })();
 </script>
 </body>
